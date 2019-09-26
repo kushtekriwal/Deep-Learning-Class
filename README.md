@@ -24,3 +24,4 @@ If you are still using Python 2.7, you can install Anaconda without messing up y
 
 ## [Homework 1. Making Your First Neural Network](hw1)
 - Due TBD
+
