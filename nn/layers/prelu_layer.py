@@ -11,6 +11,7 @@ class PReLULayer(Layer):
         self.slope = Parameter(np.full(size, initial_slope))
 
     def initialize(self, *args, **kwargs):
+        # No need to modify
         pass
 
     def forward(self, data):

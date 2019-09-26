@@ -7,14 +7,24 @@ from .layer import Layer
 class LinearLayer(Layer):
     def __init__(self, input_size, output_size):
         super(LinearLayer, self).__init__()
-        self.weight = Parameter(np.zeros((input_size, output_size), dtype=np.float32))
         self.bias = Parameter(np.zeros((1, output_size), dtype=np.float32))
+        self.weight = ??? # TODO create the weight parameter
 
-    def forward(self, data):
+    def forward(self, data: np.ndarray) -> np.ndarray:
+        """
+        Linear layer (fully connected) forward pass
+        :param data: n X d array (batch x features)
+        :return: n X c array (batch x channels)
+        """
         # TODO do the linear layer
         return None
 
-    def backward(self, previous_partial_gradient):
+    def backward(self, previous_partial_gradient: np.ndarray) -> np.ndarray:
+        """
+        Does the backwards computation of gradients wrt weights and inputs
+        :param previous_partial_gradient: n X c partial gradients wrt future layer
+        :return: gradients wrt inputs
+        """
         # TODO do the backward step
         return None
 
