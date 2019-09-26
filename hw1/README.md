@@ -1,4 +1,3 @@
-
 # CSE 490/599 G1 Homework 1 #
 
 Welcome friends,
@@ -36,10 +35,16 @@ Implement both the forward and backward function. You should not include a nonli
 Also take a look at `selfstr`. This includes some extra information that will print when you call `print` on the layer or the network. 
 You don't need to change that, but you might want to do similar things in other layers.
 
+To update the gradients of a parameter, just do `param.grad = newval`. No need to change the parameter itself here. That will be done in the optimization step.
+
+You can expect the `LinearLayer` to take as input a 2D array of `(batch X features)` and it should return `(batch X output channels)`
+
 ### 3.2 ReLU Layer ###
 
 ReLU is a pretty simple operation, but we will implement it in two different ways. DO NOT implement ReLU in place. 
 Since the gradient is undefined at 0 but is 0 for values less than 0, we will define the gradient at 0 to be 0 for simplicity.
+
+ReLU Layers (and all the non-linearities you implement) should accept arrays of arbitrary shape.
 
 ### 3.2.1 Numpy ReLU ###
 Fill in the code for the ReLU function using standard Numpy operations. Your code should work on matrices of any shape.
@@ -53,11 +58,12 @@ Since you will likely be looping over the matrix, you may find the various Numpy
 Congratulations, you now have two pieces which you can combine to make a fully functioning neural network. Now we need to make a way to update the weights.
 
 ### 4.1 Softmax Cross Entropy Loss Forward ###
-Open [nn/layers/losses/cross_entropy_loss.py](nn/layers/losses/cross_entropy_loss.py).
+Open [nn/layers/losses/softmax_cross_entropy_loss_layer.py](nn/layers/losses/softmax_cross_entropy_loss_layer.py).
 Implement the forward pass. To avoid underflow/overflow, you should first subtract the max of each row. 
 Because we are using the Softmax function, we can prove that these two inputs should give equivalent results.
 ```math
 \pi_i
+= \frac{ \exp(x_i - b + b) }{ \sum_{j=1}^n \exp(x_j - b + b) }
 = \frac{ \exp(x_i - b) \exp(b) }{ \sum_{j=1}^n \exp(x_j - b) \exp(b) }
 = \frac{ \exp(x_i - b) }{ \sum_{j=1}^n \exp(x_j - b) }
 ```
@@ -76,6 +82,8 @@ H(p,q) = -\sum_{i=1}^n p(i) log(q(x_i))
 ```
 Where $`p(i)`$ is the label probability and $`log(q(x_i))`$ is the Log Softmax of the inputs. Since the probabilities are actually input as target integers, the probabilities will be a one-hot encoding of those targets. 
 Alternatively, you can use the target integers as indices from the Log Softmax array. Finally, be sure to implement both `mean` and `sum` reduction.
+
+For the first homework, you can expect the input to be 2D (batch x class) and the label to be 1D (batch). However you will get bonus points if you correctly implement it for arbitrary dimensions (warning, harder than it sounds).
 
 ### 4.2 Softmax Cross Entropy Loss Backward ###
 Since the output of the forward function should be a float, the backward won't take any arguments. Instead, you should use some class variables to store relavent values from the forward pass in order to use them in the backward pass.
@@ -143,6 +151,8 @@ You can implement this using either Numpy or Numba, whichever you find easier.
 
 ### 5.3 Parameterized ReLU (PReLU) Layer ###
 Implement the PReLU function where the leaky slope is a learned parameter. Again, we will define the gradient to be 0 at 0.
+
+For more information, see https://arxiv.org/pdf/1502.01852.pdf
 
 PReLU can be either one value per channel (which we will assume is dimension 1 of the input) or one slope for the entire layer.
 Thus, the `size` input will be an integer >= 1. 
