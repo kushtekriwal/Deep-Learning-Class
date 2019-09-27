@@ -129,13 +129,13 @@ w \Leftarrow w - \eta * \frac{\partial L}{\partial w}
 
 With weight decay λ we get:
 ```math 
-w \Leftarrow w - \eta * \left( \frac{\partial L}{\partial w} - \lambda w \right)
+w \Leftarrow w - \eta * \left( \frac{\partial L}{\partial w} + \lambda w \right)
 ```
 
 With momentum we first calculate the amount we'll change by as a scalar of our previous change to the weights plus our gradient and weight decay:
     
 ```math 
-\Delta w \Leftarrow m * \Delta w_{prev} +  \left( \frac{\partial L}{\partial w} - \lambda w \right)
+\Delta w \Leftarrow m * \Delta w_{prev} +  \left( \frac{\partial L}{\partial w} + \lambda w \right)
 ```
 
 Then we apply that change:
