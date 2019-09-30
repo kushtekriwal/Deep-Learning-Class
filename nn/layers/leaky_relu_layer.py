@@ -4,8 +4,8 @@ from .layer import Layer
 
 
 class LeakyReLULayer(Layer):
-    def __init__(self, slope=0.1):
-        super(LeakyReLULayer, self).__init__()
+    def __init__(self, slope: float = 0.1, parent=None):
+        super(LeakyReLULayer, self).__init__(parent)
         self.slope = slope
 
     def forward(self, data):

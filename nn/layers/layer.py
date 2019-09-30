@@ -1,5 +1,6 @@
+import pdb
 from collections import OrderedDict
-from typing import Callable, List, Iterable, Dict, Optional
+from typing import Callable, List, Iterable, Dict, Optional, Union
 
 import numpy as np
 
@@ -16,12 +17,24 @@ def normals_initializer(parameter: Parameter):
 
 
 class Layer(object):
-    def __init__(self):
-        pass
+    def __init__(self, parent: Optional[Union["Layer", List["Layer"]]] = None):
+        self.parent = parent
+        assert (
+            self.parent is None or isinstance(self.parent, Layer) or isinstance(self.parent, List)
+        ), "Parents must be a Layer, a list of Layers, or None"
 
     @property
     def name(self) -> str:
         return type(self).__name__
+
+    @property
+    def parents(self) -> Optional[List["Layer"]]:
+        if self.parent is None:
+            return None
+        if isinstance(self.parent, List):
+            return self.parent
+        else:
+            return [self.parent]
 
     def forward(self, *args, **kwargs) -> np.ndarray:
         raise NotImplementedError
@@ -29,9 +42,15 @@ class Layer(object):
     def backward(self, *args, **kwargs) -> np.ndarray:
         raise NotImplementedError
 
+    def vars(self):
+        for obj, val in vars(self).items():
+            if obj == "parent":
+                continue
+            yield (obj, val)
+
     def state_dict(self, prefix="") -> Dict[str, Parameter]:
         state_dict = OrderedDict()
-        for obj, val in vars(self).items():
+        for obj, val in self.vars():
             if isinstance(val, Layer):
                 state_dict.update(val.state_dict(obj + "."))
             elif isinstance(val, Parameter):
@@ -42,13 +61,13 @@ class Layer(object):
         return self.state_dict().values()
 
     def children(self) -> Iterable["Layer"]:
-        for obj, val in vars(self).items():
+        for obj, val in self.vars():
             if isinstance(val, Layer):
                 yield val
 
     def own_parameters(self) -> Iterable[Parameter]:
         params = []
-        for obj, val in vars(self).items():
+        for obj, val in self.vars():
             if isinstance(val, Parameter):
                 params.append(val)
         return params
@@ -70,7 +89,7 @@ class Layer(object):
 
     def _total_str(self, depth=0) -> List[str]:
         total_str_arr = []
-        for obj, val in vars(self).items():
+        for obj, val in self.vars():
             if isinstance(val, Layer):
                 total_str_arr.append(("(" + obj + "): " + val.name, depth))
                 total_str_arr.append((val.selfstr(), depth + 1))

@@ -1,16 +1,15 @@
-import pdb
-import tqdm
 import numpy as np
+import tqdm
 
+from nn import Network
 from nn import layers
 from nn.layers import losses
-from nn import Network
 from nn.optimizers import SGDOptimizer, MomentumSGDOptimizer
 
 
 class MNISTNetwork(Network):
     def __init__(self):
-        network = layers.SequentialLayer(
+        self.network = layers.SequentialLayer(
             [
                 layers.LinearLayer(28 * 28, 1000),
                 layers.ReLULayer(),
@@ -19,8 +18,8 @@ class MNISTNetwork(Network):
                 layers.LinearLayer(100, 10),
             ]
         )
-        loss_layer = losses.SoftmaxCrossEntropyLossLayer()
-        super(MNISTNetwork, self).__init__(network, loss_layer)
+        loss_layer = losses.SoftmaxCrossEntropyLossLayer(parent=self.network)
+        super(MNISTNetwork, self).__init__(loss_layer)
 
     def forward(self, data):
         return self.network(data)

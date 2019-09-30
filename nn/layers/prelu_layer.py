@@ -6,7 +6,7 @@ from .layer import Layer
 
 
 class PReLULayer(Layer):
-    def __init__(self, size: int, initial_slope: float = 0.1):
+    def __init__(self, size: int, initial_slope: float = 0.1, parent=None):
         super(PReLULayer, self).__init__()
         self.slope = Parameter(np.full(size, initial_slope))
 

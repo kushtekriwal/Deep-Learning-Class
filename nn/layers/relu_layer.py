@@ -5,8 +5,8 @@ from .layer import Layer
 
 
 class ReLULayer(Layer):
-    def __init__(self):
-        super(ReLULayer, self).__init__()
+    def __init__(self, parent=None):
+        super(ReLULayer, self).__init__(parent)
 
     def forward(self, data):
         # TODO
@@ -18,8 +18,8 @@ class ReLULayer(Layer):
 
 
 class ReLUNumbaLayer(Layer):
-    def __init__(self):
-        super(ReLUNumbaLayer, self).__init__()
+    def __init__(self, parent=None):
+        super(ReLUNumbaLayer, self).__init__(parent)
 
     @staticmethod
     @njit(parallel=True, cache=True)

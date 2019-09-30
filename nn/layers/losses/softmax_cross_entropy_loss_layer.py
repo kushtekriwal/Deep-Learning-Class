@@ -4,14 +4,14 @@ from .loss_layer import LossLayer
 
 
 class SoftmaxCrossEntropyLossLayer(LossLayer):
-    def __init__(self, reduction="mean"):
+    def __init__(self, reduction="mean", parent=None):
         """
 
         :param reduction: mean reduction indicates the results should be summed and scaled by the size of the input (excluding the axis dimension).
             sum reduction means the results should be summed.
         """
         self.reduction = reduction
-        super(SoftmaxCrossEntropyLossLayer, self).__init__()
+        super(SoftmaxCrossEntropyLossLayer, self).__init__(parent)
 
     def forward(self, logits, targets, axis=-1) -> float:
         """
