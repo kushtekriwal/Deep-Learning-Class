@@ -19,6 +19,7 @@ You will train a classifier on MNIST, a common, but pretty easy, image dataset.
 If you check out [nn/layers/layer.py](nn/layers/layer.py) you will see a lot of complicated python-foo. You can pretty much ignore all of it.
 Importantly though, all of your neural network based operations will inherit from `Layer`. This helps create and track the computation graph. 
 When you overload `Layer` you will need to implement a `forward` and `backward` function. 
+There is also a `parent` which helps create the graph. For this homework you can ignore that field. It has been taken care of by the `SequentialLayer`.
 
 The `forward` function should take an input array and return a new array (not in place). 
 
@@ -118,7 +119,7 @@ After 1 epoch, you should see about 70% test accuracy. After 10 epochs, you shou
 
 
 ## 5. Improvements ##
-We can apply numerous improvements over the simple neural network from earlier.
+We can apply numerous improvements over the simple neural network from earlier. After implementing each improvement, you will need to modify [hw1/main.py](hw1/main.py) to use the new network or optimizer.
 
 ### 5.1 Momentum SGD ###
 Our normal SGD update with learning rate η is:
