@@ -5,13 +5,16 @@ Welcome friends,
 For the first assignment we'll be diving right in to Neural Networks: What do they know? Do they know things? Let's find out.
 We're going to be implementing a standard "multi-layer perceptron" aka Linear layers plus some non-linearities. 
 In this homework you will learn the ins and outs of how backprop actually works i.e. how gradients flow through the network.
-You will train a classifier on MNIST, a common, but pretty easy, image dataset.
+You will train a classifier on MNIST, a common image dataset on hand-written numbers. 
+In the PyTorch part, you will visualize some of these numbers if you have never seen them before. 
+It's actually pretty impressive that we can make a neural net that reads handwriting.
 
 ## Rules ##
 1. You may not use PyTorch or any other deep learning package in parts 1-5 of the homework. Only Numpy and Numba are allowed. Functions like numpy.matmul are fine to use.
 1. You may only modify the files we mention (those in the [submit.sh](submit.sh) script). We will not grade files outside of these.
 1. Undergrads partners only need to turn in a single homework, but you must put both partner's NetIDs in partners.txt comma separated on a single line.
     Example: `studenta,studentb`
+1. You may talk with others about the homework, but you must implement by yourself (except partners).
 1. Those not working with a partner should leave partners.txt blank.
 
 ## 1. Layers ##
@@ -19,6 +22,7 @@ You will train a classifier on MNIST, a common, but pretty easy, image dataset.
 If you check out [nn/layers/layer.py](nn/layers/layer.py) you will see a lot of complicated python-foo. You can pretty much ignore all of it.
 Importantly though, all of your neural network based operations will inherit from `Layer`. This helps create and track the computation graph. 
 When you overload `Layer` you will need to implement a `forward` and `backward` function. 
+There is also a `parent` which helps create the graph. For this homework you can ignore that field. It has been taken care of by the `SequentialLayer`.
 
 The `forward` function should take an input array and return a new array (not in place). 
 
@@ -118,7 +122,7 @@ After 1 epoch, you should see about 70% test accuracy. After 10 epochs, you shou
 
 
 ## 5. Improvements ##
-We can apply numerous improvements over the simple neural network from earlier.
+We can apply numerous improvements over the simple neural network from earlier. After implementing each improvement, you will need to modify [hw1/main.py](hw1/main.py) to use the new network or optimizer.
 
 ### 5.1 Momentum SGD ###
 Our normal SGD update with learning rate η is:
