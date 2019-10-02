@@ -16,6 +16,7 @@ It's actually pretty impressive that we can make a neural net that reads handwri
     Example: `studenta,studentb`
 1. You may talk with others about the homework, but you must implement by yourself (except partners).
 1. Those not working with a partner should leave partners.txt blank.
+1. Feel free to test as you go and modify whatever you want, but we will only grade the files from [submit.sh](submit.sh).
 
 ## 1. Layers ##
 
@@ -26,13 +27,16 @@ There is also a `parent` which helps create the graph. For this homework you can
 
 The `forward` function should take an input array and return a new array (not in place). 
 
-The `backward` function will take the partial gradients from the above layer, update the gradients of any parameters affected by the layer, and return the new gradients with respect to that layer.
+The `backward` function will take the partial gradients from the above layer, update the gradients of any parameters affected by the layer, and return the new gradients with respect to the input.
+For this homework, each backward you implement should return a single array.
  
 You can optionally also implement `initialize` and `selfstr`.
 
 ## 2. Parameters ##
 
 These are special data holders for the weights (and biases) of the network. They will help you keep the forward weights and backward weight gradients straight.
+Look at [nn/parameter.py](nn/parameter.py) to see what they hold. For forward passes, you will need to access the `param.data` field, and for backward, you will need `param.grad`.
+Note that calling `param.grad = ...` actually does the `+=` operation in order to accumulate gradients (this will become more useful in later homeworks).
 
 ## 3. Writing your first Layers ##
 
@@ -58,6 +62,9 @@ ReLU Layers (and all the non-linearities you implement) should accept arrays of 
 Fill in the code for the ReLU function using standard Numpy operations. Your code should work on matrices of any shape.
 
 ### 3.2.2 Numba ReLU ###
+Numba is a useful way of writing custom functions over things like matrices. They may not seem necessary for this homework, but you will need them for the next one.
+They also may make this homework easier for certain parts.
+
 Fill in the code for the Numba version using standard loops. Your code should again work on matrices of any shape. 
 You might notice that the first time the Numba version runs it takes a bit longer (to compile), but after that it should be quite fast. The Numba version may even run faster than the Numpy version, so that's kind of cool.
 Since you will likely be looping over the matrix, you may find the various Numpy `flatten` and `reshape` functions useful as a preprocessing step, but be sure the output shape matches the input shape.

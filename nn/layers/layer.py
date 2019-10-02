@@ -1,4 +1,3 @@
-import pdb
 from collections import OrderedDict
 from typing import Callable, List, Iterable, Dict, Optional, Union
 
@@ -39,7 +38,7 @@ class Layer(object):
     def forward(self, *args, **kwargs) -> np.ndarray:
         raise NotImplementedError
 
-    def backward(self, *args, **kwargs) -> np.ndarray:
+    def backward(self, *args, **kwargs) -> Union[np.ndarray, List[np.ndarray]]:
         raise NotImplementedError
 
     def vars(self):
