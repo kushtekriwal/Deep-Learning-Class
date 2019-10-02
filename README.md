@@ -22,6 +22,5 @@ conda activate dl-class
 Although you don't technically _have to_ use Anaconda and Python 3.6, this is how we will be grading it, and if it doesn't work on our grading computer, we won't try too hard to make it work.
 If you are still using Python 2.7, you can install Anaconda without messing up your current Python installation. Anaconda also makes sure that the installed libraries don't affect other projects on the same machine.
 
-## [Homework 1. Making Your First Neural Network](hw1)
-- Due TBD
+## [Homework 1. Making Your First Neural Network](hw1) - Due 10/15/19 11:59PM
 
