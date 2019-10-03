@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Callable, List, Iterable, Dict, Optional, Union
+from typing import Callable, List, Tuple, Iterable, Dict, Optional, Union
 
 import numpy as np
 
@@ -38,7 +38,7 @@ class Layer(object):
     def forward(self, *args, **kwargs) -> np.ndarray:
         raise NotImplementedError
 
-    def backward(self, *args, **kwargs) -> Union[np.ndarray, List[np.ndarray]]:
+    def backward(self, *args, **kwargs) -> Union[np.ndarray, Tuple[np.ndarray]]:
         raise NotImplementedError
 
     def vars(self):

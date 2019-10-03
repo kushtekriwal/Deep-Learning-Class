@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import List
+from typing import List, Tuple
 
 from nn.layers import Layer
 from nn.layers.losses import LossLayer
@@ -51,13 +51,13 @@ class Network(Layer, ABC):
         for layer in order:
             output_grad = layer.backward(gradients[layer])
             if layer.parents is not None:
-                assert isinstance(layer.parent, List) == isinstance(
-                    output_grad, List
-                ), "Gradients should be a list iff there are multiple parents."
-                if not isinstance(output_grad, List):
-                    output_grad = [output_grad]
+                assert (isinstance(layer.parent, List) ==
+                        isinstance(output_grad, Tuple)
+                        ), "Gradients should be a list iff there are multiple parents."
+                if not isinstance(output_grad, Tuple):
+                    output_grad = (output_grad, )
                 for parent, grad in zip(layer.parents, output_grad):
                     if parent in gradients:
-                        gradients[parent] = gradients[parent] + output_grad
+                        gradients[parent] = gradients[parent] + grad
                     else:
-                        gradients[parent] = output_grad
+                        gradients[parent] = grad
