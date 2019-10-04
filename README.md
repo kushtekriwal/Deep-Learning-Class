@@ -12,7 +12,7 @@ First install Miniconda (https://docs.conda.io/en/latest/miniconda.html). Then r
 
 ```bash
 conda create -n dl-class python=3.6
-git clone git@gitlab.com:danielgordon10/dl-class-2019a.git
+git clone https://gitlab.com/danielgordon10/dl-class-2019a.git
 cd dl-class
 conda deactivate
 conda env update -n dl-class -f environment.yml
