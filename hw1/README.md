@@ -12,6 +12,7 @@ It's actually pretty impressive that we can make a neural net that reads handwri
 ## Rules ##
 1. You may not use PyTorch or any other deep learning package in parts 1-5 of the homework. Only Numpy and Numba are allowed. Functions like numpy.matmul are fine to use.
 1. You may only modify the files we mention (those in the [submit.sh](submit.sh) script). We will not grade files outside of these.
+1. You may not change the signatures or return types of `__init__`, `forward`, `backward`, or `step` in the various parts or you will fail our tests. You may add object fields (e.g. `self.data`) or helper functions within the files.
 1. Undergrads partners only need to turn in a single homework, but you must put both partner's NetIDs in partners.txt comma separated on a single line.
     Example: `studenta,studentb`
 1. You may talk with others about the homework, but you must implement by yourself (except partners).
