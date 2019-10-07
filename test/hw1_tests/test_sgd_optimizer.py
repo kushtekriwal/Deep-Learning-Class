@@ -16,19 +16,6 @@ class TorchNet(torch.nn.Module):
         return self.layer(x)
 
 
-class Net(nn.network.Network):
-    def __init__(self):
-        self.layers = nn.layers.LinearLayer(100, 10)
-        loss_layer = nn.layers.losses.MeanLossLayer(self.layers)
-        super(Net, self).__init__(loss_layer)
-
-    def forward(self, x):
-        return self.layers(x)
-
-    def loss(self, out):
-        return self.loss_layer(out)
-
-
 def test_sgd_update():
     net = nn.layers.LinearLayer(100, 10)
     learning_rate = 1
