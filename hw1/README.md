@@ -9,6 +9,16 @@ You will train a classifier on MNIST, a common image dataset on hand-written num
 In the PyTorch part, you will visualize some of these numbers if you have never seen them before. 
 It's actually pretty impressive that we can make a neural net that reads handwriting.
 
+We have provided some tests for checking your implementation. The tests are intentionally missing some cases, but feel free to write more tests yourself.
+To run the tests from the outermost directory, simply run
+```bash
+pytest test/hw1_tests
+```
+Or to run them for an individual file (for example test_linear_layer), run
+```bash
+pytest test/hw1_tests/test_linear_layer.py
+```
+
 ## Rules ##
 1. You may not use PyTorch or any other deep learning package in parts 1-5 of the homework. Only Numpy and Numba are allowed. Functions like numpy.matmul are fine to use.
 1. You may only modify the files we mention (those in the [submit.sh](submit.sh) script). We will not grade files outside of these.
