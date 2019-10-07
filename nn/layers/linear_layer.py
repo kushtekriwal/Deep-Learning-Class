@@ -1,3 +1,5 @@
+from typing import Optional, Callable
+
 import numpy as np
 
 from nn import Parameter
@@ -9,6 +11,7 @@ class LinearLayer(Layer):
         super(LinearLayer, self).__init__(parent)
         self.bias = Parameter(np.zeros((1, output_size), dtype=np.float32))
         self.weight = ??? # TODO create the weight parameter
+        self.initialize()
 
     def forward(self, data: np.ndarray) -> np.ndarray:
         """
@@ -30,3 +33,12 @@ class LinearLayer(Layer):
 
     def selfstr(self):
         return str(self.weight.data.shape)
+
+    def initialize(self, initializer: Optional[Callable[[Parameter], None]] = None):
+        if initializer is None:
+            self.weight.data = np.random.normal(0, 0.1, self.weight.data.shape)
+            self.bias.data = 0
+        else:
+            for param in self.own_parameters():
+                initializer(param)
+        super(LinearLayer, self).initialize()

@@ -36,7 +36,6 @@ class MNISTNetwork(Network):
 def train(train_data, train_labels, test_data, test_labels, optimizer_type="sgd"):
     network = MNISTNetwork()
     print(network)
-    network.initialize()
     if optimizer_type == "sgd":
         optimizer = SGDOptimizer(network.parameters(), lr)
     elif optimizer_type == "momentum":

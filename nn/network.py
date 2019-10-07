@@ -51,11 +51,11 @@ class Network(Layer, ABC):
         for layer in order:
             output_grad = layer.backward(gradients[layer])
             if layer.parents is not None:
-                assert (isinstance(layer.parent, List) ==
-                        isinstance(output_grad, Tuple)
-                        ), "Gradients should be a list iff there are multiple parents."
+                assert isinstance(layer.parent, List) == isinstance(
+                    output_grad, Tuple
+                ), "Gradients should be a list iff there are multiple parents."
                 if not isinstance(output_grad, Tuple):
-                    output_grad = (output_grad, )
+                    output_grad = (output_grad,)
                 for parent, grad in zip(layer.parents, output_grad):
                     if parent in gradients:
                         gradients[parent] = gradients[parent] + grad
