@@ -1,6 +1,6 @@
 channels:
-  - pytorch
   - conda-forge
+  - pytorch
   - defaults
 dependencies:
   - python=3.6.9
@@ -10,6 +10,6 @@ dependencies:
   - tqdm=4.32.1
   - numpy==1.17.2
   - opencv=3.4.2
-  - pytorch=1.2.0=py3.6_cpu_0
-  - torchvision=0.4.0=py36_cpu
+  - pytorch
+  - torchvision
   - pytest

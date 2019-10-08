@@ -94,7 +94,7 @@ Because we are using the Softmax function, we can prove that these two inputs sh
 = \frac{ \exp(x_i - b) }{ \sum_{j=1}^n \exp(x_j - b) }
 ```
 
-By combining the Softmax and the Cross Entropy, we can actually implement a more stable loss as well. First we will implement Log Softmax.
+By combining the Softmax and the Cross Entropy, we can actually implement a more stable loss as well. First we will implement Log Softmax (n is the size of the label dimension).
 ```math
 \begin{aligned}
 \log\left(\frac{e^{x_j}}{\sum_{i=1}^{n} e^{x_i}}\right) &= \log(e^{x_j}) - \log\left(\sum_{i=1}^{n} e^{x_i}\right) \\
@@ -109,7 +109,8 @@ H(p,q) = -\sum_{i=1}^n p(i) log(q(x_i))
 Where $`p(i)`$ is the label probability and $`log(q(x_i))`$ is the Log Softmax of the inputs. Since the probabilities are actually input as target integers, the probabilities will be a one-hot encoding of those targets. 
 Alternatively, you can use the target integers as indices from the Log Softmax array. Finally, be sure to implement both `mean` and `sum` reduction.
 
-For the first homework, you can expect the input to be 2D (batch x class) and the label to be 1D (batch). However you will get bonus points if you correctly implement it for arbitrary dimensions (warning, harder than it sounds).
+For the first homework, you can expect the input to be 2D (batch x class) and the label to be 1D (batch). However you will get bonus points if you correctly implement it for arbitrary dimensions (warning, harder than it sounds). 
+Hint: use numpy moveaxis and reshape to put the class dimension at the end and convert it to (batch x class), then undo after the computations.
 
 ### 4.2 Softmax Cross Entropy Loss Backward ###
 Since the output of the forward function should be a float, the backward won't take any arguments. Instead, you should use some class variables to store relavent values from the forward pass in order to use them in the backward pass.
