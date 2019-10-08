@@ -5,6 +5,7 @@ from nn.layers import *
 def _test_backward_approx(layer, data_shape):
     h = 1e-4
     data = np.random.random(data_shape) * 10 - 5
+    data[np.abs(data) < h] = 1
     output1 = layer.forward(data + h)
     output2 = layer.forward(data - h)
 
@@ -18,8 +19,8 @@ def _test_backward_approx(layer, data_shape):
 
 def test_layers():
     layers = [
-        (LeakyReLULayer(0.001), (10, 20, 30)),
         (ReLULayer(), (10, 20, 30)),
+        (LeakyReLULayer(0.001), (10, 20, 30)),
         (PReLULayer(8, 0.001), (10, 8, 100)),
         (PReLULayer(1, 0.001), (10, 8, 100)),
     ]

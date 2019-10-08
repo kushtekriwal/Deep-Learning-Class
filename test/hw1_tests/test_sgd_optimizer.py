@@ -17,6 +17,8 @@ class TorchNet(torch.nn.Module):
 
 
 def test_sgd_update():
+    np.random.seed(0)
+    torch.manual_seed(0)
     net = nn.layers.LinearLayer(100, 10)
     learning_rate = 1
     optimizer = sgd_optimizer.SGDOptimizer(net.parameters(), learning_rate)
@@ -39,10 +41,10 @@ def test_sgd_update():
 
     torch_optimizer.zero_grad()
     torch_out = torch_net(utils.from_numpy(data))
-    assert np.allclose(out, utils.to_numpy(torch_out.clone().detach()), atol=0.001)
+    assert np.allclose(out, utils.to_numpy(torch_out.clone().detach()), atol=0.01)
 
     torch_loss = torch_out.sum()
-    assert np.allclose(loss, torch_loss.item(), atol=0.001)
+    assert np.allclose(loss, torch_loss.item(), atol=0.01)
     torch_loss.backward()
 
     assert np.allclose(net.weight.grad.T, utils.to_numpy(torch_net.layer.weight.grad))
