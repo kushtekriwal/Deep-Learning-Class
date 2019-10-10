@@ -39,7 +39,7 @@ def test_linear_forward():
                 _test_linear_forward(input_shape, output_channels)
 
 
-def _test_linear_backward(input_shape, out_channels,):
+def _test_linear_backward(input_shape, out_channels):
     in_channels = input_shape[1]
     input = np.random.random(input_shape).astype(np.float32) * 20
     layer = LinearLayer(in_channels, out_channels)

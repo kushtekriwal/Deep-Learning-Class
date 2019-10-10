@@ -10,7 +10,7 @@ def _test_forward(input_shape, reduction, axis):
     data = np.random.random(input_shape) * 2 - 1
     labels_shape = list(data.shape)
     labels_shape.pop(axis)
-    labels = np.random.randint(0, data.shape[axis], labels_shape)
+    labels = np.random.randint(0, data.shape[axis], labels_shape).astype(np.int64)
     loss = layer(data, labels, axis=axis)
     if axis == 1:
         pytorch_loss = F.cross_entropy(utils.from_numpy(data), utils.from_numpy(labels), reduction=reduction)
@@ -34,7 +34,7 @@ def _test_forward_overflow(input_shape, reduction, axis):
     data = np.random.random(input_shape) * 10000 - 1
     labels_shape = list(data.shape)
     labels_shape.pop(axis)
-    labels = np.random.randint(0, data.shape[axis], labels_shape)
+    labels = np.random.randint(0, data.shape[axis], labels_shape).astype(np.int64)
     loss = layer(data, labels, axis=axis)
     if axis == 1:
         pytorch_loss = F.cross_entropy(utils.from_numpy(data), utils.from_numpy(labels), reduction=reduction)
@@ -66,7 +66,7 @@ def _test_backward(input_shape, reduction, axis):
     data = np.random.random(input_shape) * 2 - 1
     labels_shape = list(data.shape)
     labels_shape.pop(axis)
-    labels = np.random.randint(0, data.shape[axis], labels_shape)
+    labels = np.random.randint(0, data.shape[axis], labels_shape).astype(np.int64)
     loss = layer(data, labels, axis=axis)
     if axis == 1:
         torch_input = utils.from_numpy(data).requires_grad_(True)
