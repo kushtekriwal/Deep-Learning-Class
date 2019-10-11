@@ -192,7 +192,7 @@ However we will give +1 extra credit (and +1 deep learning street cred) if you s
 ## 6. PyTorch ##
 Navigate to: https://colab.research.google.com/
 
-and upload the iPython notebook provided: `mnist_pytorch.ipynb`
+and upload the iPython notebook provided: `homework1_colab.ipynb`
 
 Complete the notebook to train a PyTorch model on the MNIST dataset.
 
