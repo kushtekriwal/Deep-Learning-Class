@@ -172,13 +172,16 @@ The MomentumSGDOptimizer class will need to keep a history of the previous chang
 Using momentum should give significantly faster and better convergence. After a single epoch, you should see about 90% accuracy. After 10 epochs, you should see about 95% accuracy.
 
 ### 5.2 Leaky ReLU Layer ###
-Implement the Leaky ReLU function `LeakyReLU(x) = x if x > 0, slope * x if x <= 0`. Again, we will define the gradient to be 0 at 0. 
+Implement the Leaky ReLU function `LeakyReLU(x) = x if x > 0, slope * x if x <= 0`. We will define the gradient at 0 to be like the negative half. 
+(Note, we know we changed this from what it originally said. If you already implemented the version we originally said, you will pass our tests, but this new version is more correct).
 
 You may see LeakyReLU defined in other places as `LeakyReLU(x) = max(x, slope * x)` but what happens if slope is > 1 or negative? Be careful of this trap in your implementation.
 You can implement this using either Numpy or Numba, whichever you find easier. 
 
 ### 5.3 Parameterized ReLU (PReLU) Layer ###
-Implement the PReLU function where the leaky slope is a learned parameter. Again, we will define the gradient to be 0 at 0.
+Implement the PReLU function where the leaky slope is a learned parameter. Again, we will define the gradient at 0 to be like the negative half. 
+(Note, we know we changed this from what it originally said. If you already implemented the version we originally said, you will pass our tests, but this new version is more correct).
+
 
 For more information, see https://arxiv.org/pdf/1502.01852.pdf
 
