@@ -99,7 +99,9 @@ Notice in `main.py` how none of the layers specify the parent argument. But now 
 In this case, that is just the first element.
 
 Now let's get into the `ResNetBlock`.
-![ResNet block](readme_assets/images/resnet_block.png])
+
+<img src="../readme_assets/images/resnet_block.png">
+
 The `ResNetBlock` has two branches from the input that are eventually combined again. 
 The primary path takes the data, applies a Convolution -> ReLU -> Convolution pipeline.
 The residual path then adds the original input back to the output of the primary path.
