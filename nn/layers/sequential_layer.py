@@ -32,4 +32,4 @@ class SequentialLayer(LayerUsingLayer):
         return final_layer
 
     def set_parent(self, val):
-        self.layers[0].parent = val
+        self.layers[0].set_parent(val)

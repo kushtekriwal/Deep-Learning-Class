@@ -1,6 +1,7 @@
-import pdb
 from abc import ABC
-from typing import List, Tuple
+
+import numpy as np
+
 from nn.layers import Layer
 
 
@@ -10,6 +11,9 @@ class LayerUsingLayer(Layer, ABC):
 
     @property
     def final_layer(self):
+        raise NotImplementedError
+
+    def set_parent(self, val):
         raise NotImplementedError
 
     def backward(self, previous_partial_gradients=None) -> None:
@@ -44,22 +48,30 @@ class LayerUsingLayer(Layer, ABC):
                 if len(graph[parent]) == 0:
                     frontier.append(parent)
 
-        gradients = {}
-        for layer in self.final_layer.parents:
-            gradients[layer] = gradient
-        # Ignore loss layer because already computed
+        grad_dict = {}
+        self._assign_parent_grads(self.final_layer, gradient, grad_dict)
+        # Ignore loss conv_layers because already computed
         order = order[1:]
         # Send gradients backwards
         for layer in order:
-            output_grad = layer.backward(gradients[layer])
+            output_grad = layer.backward(grad_dict[layer])
             if layer.parents is not None:
-                assert isinstance(layer.parent, Tuple) == isinstance(
-                    output_grad, Tuple
-                ), "Gradients should be a list iff there are multiple parents."
-                if not isinstance(output_grad, Tuple):
-                    output_grad = (output_grad,)
-                for parent, grad in zip(layer.parents, output_grad):
-                    if parent in gradients:
-                        gradients[parent] = gradients[parent] + grad
-                    else:
-                        gradients[parent] = grad
+                self._assign_parent_grads(layer, output_grad, grad_dict)
+
+    @staticmethod
+    def _assign_parent_grads(layer, grad, grad_dict):
+        assert (
+            isinstance(grad, np.ndarray) or isinstance(grad, tuple),
+            ("grad should be a nparray or a tuple of nparrays but was %s." % type(grad).__name__),
+        )
+        assert (
+            isinstance(layer.parent, tuple) == isinstance(grad, tuple),
+            "Gradients should be a tuple iff there are multiple parents.",
+        )
+        if not isinstance(grad, tuple):
+            grad = (grad,)
+        for parent, grad in zip(layer.parents, grad):
+            if parent in grad_dict:
+                grad_dict[parent] = grad_dict[parent] + grad
+            else:
+                grad_dict[parent] = grad

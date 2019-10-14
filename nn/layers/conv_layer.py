@@ -31,7 +31,7 @@ class ConvLayer(Layer):
 
     @staticmethod
     @njit(cache=True, parallel=True)
-    def backward_numba(previous_grad, data, padded_data, kernel, kernel_grad, stride, padding):
+    def backward_numba(previous_grad, data, kernel, kernel_grad):
         # TODO
         # data is N x C x H x W
         # kernel is COld x CNew x K x K

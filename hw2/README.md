@@ -46,13 +46,13 @@ Specifically, you can make the following assumptions/simplifications:
 ## 2. Max Pooling ##
 This should be very similar to convolution except instead of multiplying, you do a max. The same rules and expectations apply as in the conv layer.
 
-### 3 Flatten Layer ###
+## 3 Flatten Layer ##
 We will need this to be able to feed the output of a convolution layer (which outputs `b x c x h x w`)into a linear layer (which expects `b x c`).
 This should be very straightforward to implement. All you need to do is reshape the output (have a look at the np.reshape) function.
-The `backward` should also be quite straightforward.
+The `backward` should also be quite straightforward. You can do both `forward` and `backward` in place if you choose.
 
 
-### Training the network ###
+## 4. Training the network ##
 With this done, and using our code from last time, we can now train a full convolutional network! Open [hw2/main.py](hw2/main.py). We have already provided code to train and test.
 The network here is actually a very famous network called LeNet. If you would have written this in 1995, you'd be up for a Turing award this year.
 
@@ -62,85 +62,83 @@ You can run it by calling
 cd hw2
 python main.py
 ```
-After 1 epoch, you should see about 95% test accuracy. After 5 epochs, you should see about ______% accuracy.
+After 1 epoch, you should see about 95% test accuracy. After 20 epochs, you should see about 98-99% accuracy.
 
 
 ## 5. Improvements ##
+We're now going to implement a version of a ResNet (residual network) which should help our accuracy. You can read more about ResNets [here](https://arxiv.org/pdf/1512.03385.pdf).
+This should get us up to 99% accuracy! 
+
+### 5.1 Add Layer ###
+The first thing we'll need is a layer to add two (or `N`) tensors together. Up until now, all of the layers have taken a single tensor as input. 
+Some of the layers (like `LinearLayer` have parameters, but no layers have had multiple inputs. 
+
+The `forward` pass should take `N` tensors and add them together. You can assume all tensors have exactly the same shape.
+
+The `backward` pass should compute the gradient with respect to each input and return `N` gradient tensors in a tuple. 
 
 
+### 5.2 ResNetBlock ###
+Now to actually make the ResNet block. You can think of this as a mini network which will be used multiple times in your larger network. 
+Through the magic of graphs and the backpropagation algorithm, we will only have to write a `forward` for this block and the `backward` can be figured out automatically.
+But to get the graph to be happy (AKA to specify the graph properly), we will  have to do some minor bookkeeping.
 
-TO WRITE
+Firstly, notice that `ResNetBlock` is a `LayerUsingLayer`. This means all the operations we will do on the data will be using `Layer`s rather than numpy/numba/python functions.
+By doing this, we construct a computation graph which can be executed forward and which can be backpropagated through. This is actually something you've seen and used before.
+Both `SequentialLayer` and `Network`, and are all `LayerUsingLayer`s. That's why you didn't have to write explicit `backward` functions for them.
 
+Have a look at [nn/layers/sequential_layer.py](nn/layers/sequential_layer.py). A `SequentialLayer` applies operations to data sequentially with each `Layer` using the previous `Layer`'s output as its input. 
+The nice thing about the sequential layer is we don't have to specify and call all the layers individually.
+But there is also some bookkeeping involved. `LayerUsingLayer`s must implement the `final_layer` property and the `set_parent` function in order to work.
 
+`final_layer` is pretty straightforward. This is the very last thing done by a `LayerUsingLayer` (in the graph, it is the edge that exits the final node and doesn't go into anything).
+In `SequentialLayer` we recursively search for the final layer from the `layers` list in case those layers too are `LayerUsingLayer`s.
 
+`set_parent` lets us reassign the parent of the `LayerUsingLayer` subgraph. This is mostly useful because the `SequentialLayer` allows us to avoid specifying the parent during the `__init__` call of the sub-layers.
+Notice in `main.py` how none of the layers specify the parent argument. But now we have to "fix up" the parents by assigning the parent to any point in the `SequentialLayer`'s sub-graph that used the parent.
+In this case, that is just the first element.
 
+Now let's get into the `ResNetBlock`.
+![ResNet block](readme_assets/images/resnet_block.png])
+The `ResNetBlock` has two branches from the input that are eventually combined again. 
+The primary path takes the data, applies a Convolution -> ReLU -> Convolution pipeline.
+The residual path then adds the original input back to the output of the primary path.
+Finally, a ReLU is performed at the end. This is what we need to do in this layer (we are omitting Batch Norm for this assignment.)
 
-We can apply numerous improvements over the simple neural network from earlier. After implementing each improvement, you will need to modify [hw1/main.py](hw1/main.py) to use the new network or optimizer.
+#### 5.2.1 \_\_init\_\_ ####
+In `__init__` we need to create the `Layer`s to do those operations listed above. You may find it useful to make the primary path using a `SequentialLayer`.
+Make sure to provide the parents of the layers to their constructors.
 
-### 5.1 Momentum SGD ###
-Our normal SGD update with learning rate η is:
+#### 5.2.2 set_parent ####
+Now we need to implement `set_parent`. Everywhere in the `__init__` function where the old parent (which may have been `None`) was used, we now have to substitute the new parent.
 
-```math 
-w \Leftarrow w - \eta * \frac{\partial L}{\partial w}
-```
+#### 5.2.3 final_layer ####
+Here we simply need to return a reference to the last operation. In this case it should be the ReLU after the add.
 
-With weight decay λ we get:
-```math 
-w \Leftarrow w - \eta * \left( \frac{\partial L}{\partial w} + \lambda w \right)
-```
+#### 5.2.4 forward ####
+Now we must actually do the `forward` pass of the data through the ResNet block. It should take in a single data array and return a new data array with the operations applied.
 
-With momentum we first calculate the amount we'll change by as a scalar of our previous change to the weights plus our gradient and weight decay:
-    
-```math 
-\Delta w \Leftarrow m * \Delta w_{prev} +  \left( \frac{\partial L}{\partial w} + \lambda w \right)
-```
-
-Then we apply that change:
-   ```math 
-w \Leftarrow w - \eta \Delta w
-``` 
-
-The MomentumSGDOptimizer class will need to keep a history of the previous changes in order to compute the new ones. 
-
-Using momentum should give significantly faster and better convergence. After a single epoch, you should see about 90% accuracy. After 10 epochs, you should see about 95% accuracy.
-
-### 5.2 Leaky ReLU Layer ###
-Implement the Leaky ReLU function `LeakyReLU(x) = x if x > 0, slope * x if x <= 0`. We will define the gradient at 0 to be like the negative half. 
-(Note, we know we changed this from what it originally said. If you already implemented the version we originally said, you will pass our tests, but this new version is more correct).
-
-You may see LeakyReLU defined in other places as `LeakyReLU(x) = max(x, slope * x)` but what happens if slope is > 1 or negative? Be careful of this trap in your implementation.
-You can implement this using either Numpy or Numba, whichever you find easier. 
-
-### 5.3 Parameterized ReLU (PReLU) Layer ###
-Implement the PReLU function where the leaky slope is a learned parameter. Again, we will define the gradient at 0 to be like the negative half. 
-(Note, we know we changed this from what it originally said. If you already implemented the version we originally said, you will pass our tests, but this new version is more correct).
+### 5.3 Testing it out ###
+In [hw2/main.py](hw2/main.py), change out the MNistNetwork for the MNistResNetwork. You should now get up to 99% accuracy on MNIST! Congratulations.
 
 
-For more information, see https://arxiv.org/pdf/1502.01852.pdf
-
-PReLU can be either one value per channel (which we will assume is dimension 1 of the input) or one slope for the entire layer.
-Thus, the `size` input will be an integer >= 1. 
-
-You can implement this using either Numpy or Numba, whichever you find easier. 
-If you implement using Numba, we recommend not using the `parallel=True` flag to ensure that your gradient computations do not overwrite each other. 
-However we will give +1 extra credit (and +1 deep learning street cred) if you submit a parallel version.
 
 ## 6. PyTorch ##
 Navigate to: https://colab.research.google.com/
 
-and upload the iPython notebook provided: `homework1_colab.ipynb`
+and upload the iPython notebook provided: `homework2_colab.ipynb`
 
-Complete the notebook to train a PyTorch model on the MNIST dataset.
+Complete the notebook to train a PyTorch model on CIFAR and ImageNet.
 
 ## 7. Short answer ##
 Answer these questions and save them in a file named `hw1/short_answer.pdf`.
-1. Play around with different Leaky ReLU slopes. What is the best slope you could find? What happens if you set the slope > 1? What about slope < 0. Theoretically, what happens if you set slope = 1?
-2. Set PReLU to take 1 slope per layer. After 20 epochs, what were your PReLU slopes? Does this correspond with what you found in question 1?
-3. If you add more layers and more epochs, what accuracy can you reach? Can you get to 99%? What is your best network layout?
+1. See if you can improve the MNistResNetwork architecture using more ResNetBlocks. What's the highest accuracy you achieve? What is the architecture (you can paste the output from print(network)).
+2. Do you get any improvement using a different non-linearity? Be sure to change it back to ReLU before you turn in your final code.
+3. Can you come up with an architecture which gets even higher accuracy? Again, include the output from print(network).
 
 ## Turn it in ##
 
-First `cd` to the `hw1` directory. Then run the `submit.sh` script by running:
+First `cd` to the `hw2` directory. Then run the `submit.sh` script by running:
 
 ```bash
 bash submit.sh

@@ -11,16 +11,17 @@ from nn import layers
 from nn.layers import losses
 from nn.optimizers.momentum_sgd_optimizer import MomentumSGDOptimizer
 from nn import Network
+from nn.layers.block_layers import ResNetBlock
 
 
 class MNISTNetwork(Network):
     def __init__(self):
         self.layers = layers.SequentialLayer(
             [
-                layers.ConvLayer(1, 6, 3),
+                layers.ConvLayer(1, 6, 5),
                 layers.MaxPoolLayer(2, 2),
                 layers.ReLULayer(),
-                layers.ConvLayer(6, 16, 3),
+                layers.ConvLayer(6, 16, 5),
                 layers.MaxPoolLayer(2, 2),
                 layers.ReLULayer(),
                 layers.FlattenLayer(),
@@ -41,27 +42,42 @@ class MNISTNetwork(Network):
         return self.loss_layer(predictions, labels)
 
 
-if __name__ == "__main__":
-    batch_size = 100
-    lr = 0.01
+class MNISTResNetwork(Network):
+    def __init__(self):
+        self.layers = layers.SequentialLayer(
+            [
+                layers.ConvLayer(1, 6, 5),
+                layers.MaxPoolLayer(2, 2),
+                layers.ReLULayer(),
+                layers.ConvLayer(6, 16, 5),
+                ResNetBlock((16, 16, 3, 1)),
+                ResNetBlock((16, 16, 3, 1)),
+                layers.MaxPoolLayer(2, 2),
+                layers.ReLULayer(),
+                layers.FlattenLayer(),
+                layers.LinearLayer(16 * 7 * 7, 120),
+                layers.ReLULayer(),
+                layers.LinearLayer(120, 84),
+                layers.ReLULayer(),
+                layers.LinearLayer(84, 10),
+            ]
+        )
+        loss_layer = losses.SoftmaxCrossEntropyLossLayer(parent=self.layers)
+        super(MNISTResNetwork, self).__init__(loss_layer)
 
-    train_dataset = np.load("../datasets/mnist/train.npz")
-    train_data = train_dataset["data"].astype(np.float32) / 255
-    train_data = train_data[:, np.newaxis, ...]
-    train_labels = train_dataset["labels"]
+    def forward(self, data):
+        return self.layers(data)
 
-    test_dataset = np.load("../datasets/mnist/test.npz")
-    test_data = test_dataset["data"].astype(np.float32) / 255
-    test_data = test_data[:, np.newaxis, ...]
-    test_labels = test_dataset["labels"]
+    def loss(self, predictions, labels):
+        return self.loss_layer(predictions, labels)
 
-    network = MNISTNetwork()
+
+def train(train_data, train_labels, test_data, test_labels, network):
+    optimizer = MomentumSGDOptimizer(network.parameters(), lr)
     print(network)
-    optimizer = MomentumSGDOptimizer(network.parameters(), lr, weight_decay=0.0005)
-
     iteration = -1
     epoch = 0
-    for epoch in range(5):
+    for epoch in range(20):
         for ii in tqdm.tqdm(range(0, len(train_data), batch_size)):
             iteration += 1
             data = train_data[ii : min(ii + batch_size, len(train_data))]
@@ -82,3 +98,21 @@ if __name__ == "__main__":
         loss = network.loss(output, test_labels)
         print("-" * 50)
         print("\tepoch", epoch, "test accuracy %.3f" % accuracy, "loss %.3f" % loss)
+
+
+if __name__ == "__main__":
+    batch_size = 100
+    lr = 0.01
+
+    train_dataset = np.load("../datasets/mnist/train.npz")
+    train_data = train_dataset["data"].astype(np.float32) / 255
+    train_data = train_data[:, np.newaxis, ...]
+    train_labels = train_dataset["labels"]
+
+    test_dataset = np.load("../datasets/mnist/test.npz")
+    test_data = test_dataset["data"].astype(np.float32) / 255
+    test_data = test_data[:, np.newaxis, ...]
+    test_labels = test_dataset["labels"]
+
+    network = MNISTNetwork()
+    train(train_data, train_labels, test_data, test_labels, network)

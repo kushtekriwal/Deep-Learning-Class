@@ -27,15 +27,26 @@ def _test_max_pool_forward(input_shape, kernel_size, stride):
     assert np.allclose(output, torch_out, atol=TOLERANCE)
 
 
-def test_max_pool_forward():
-    for batch_size in range(1, 4):
-        for input_channels in range(1, 4):
-            for width in range(10, 21):
-                for height in range(10, 21):
-                    for stride in range(1, 3):
-                        for kernel_size in range(stride, 6):
-                            input_shape = (batch_size, input_channels, width, height)
-                            _test_max_pool_forward(input_shape, kernel_size, stride)
+def test_max_pool_forward_batch_input_output():
+    width = 10
+    height = 10
+    kernel_size = 3
+    stride = 1
+    for batch_size in range(1, 5):
+        for input_channels in range(1, 5):
+            input_shape = (batch_size, input_channels, width, height)
+            _test_max_pool_forward(input_shape, kernel_size, stride)
+
+
+def test_max_pool_forward_width_height_stride_kernel_size():
+    batch_size = 2
+    input_channels = 2
+    for width in range(10, 21):
+        for height in range(10, 21):
+            for stride in range(1, 3):
+                for kernel_size in range(stride, 6):
+                    input_shape = (batch_size, input_channels, width, height)
+                    _test_max_pool_forward(input_shape, kernel_size, stride)
 
 
 def _test_max_pool_backward(input_shape, kernel_size, stride):
@@ -58,12 +69,23 @@ def _test_max_pool_backward(input_shape, kernel_size, stride):
     assert np.allclose(out_grad, torch_out_grad, atol=TOLERANCE)
 
 
-def test_max_pool_backward():
-    for batch_size in range(1, 4):
-        for input_channels in range(1, 4):
-            for width in range(10, 21):
-                for height in range(10, 21):
-                    for stride in range(1, 3):
-                        for kernel_size in range(stride, 6):
-                            input_shape = (batch_size, input_channels, width, height)
-                            _test_max_pool_backward(input_shape, kernel_size, stride)
+def test_max_pool_backward_batch_input_output():
+    width = 10
+    height = 10
+    kernel_size = 3
+    stride = 1
+    for batch_size in range(1, 5):
+        for input_channels in range(1, 5):
+            input_shape = (batch_size, input_channels, width, height)
+            _test_max_pool_forward(input_shape, kernel_size, stride)
+
+
+def test_max_pool_backward_width_height_stride_kernel_size():
+    batch_size = 2
+    input_channels = 2
+    for width in range(10, 21):
+        for height in range(10, 21):
+            for stride in range(1, 3):
+                for kernel_size in range(stride, 6):
+                    input_shape = (batch_size, input_channels, width, height)
+                    _test_max_pool_forward(input_shape, kernel_size, stride)
