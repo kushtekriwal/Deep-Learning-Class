@@ -34,6 +34,7 @@ If you check out [nn/layers/conv_layer.py](nn/layers/conv_layer.py) you will see
 To make everyone's lives easier, we are only asking for you to cover a few cases of convolutions. If you want to do more, you're more than welcome, but as soon as you pass the provided tests, you should be good to go.
 Specifically, you can make the following assumptions/simplifications:
 1. You will "technically" be implementing the cross-correlation, but everyone calls it convolution.
+1. There is one bias per output channel, similar to the `LinearLayer`.
 1. The input to the layer will always be 4-Dimensional `(batch, input_channels, height, width)`.
 1. The output should be `(batch, output_channels, output_height, output_width)`
 1. Convolutional kernels will always be square.
@@ -42,6 +43,7 @@ Specifically, you can make the following assumptions/simplifications:
 1. When computing output sizes, you should discard incomplete rows if the stride puts it over the edge. e.g. `(2, 3, 5, 5)` input, 3 kernels of size 2x2 and stride of 2 should result in an output of shape `(2, 3, 2, 2)`.
 1. You can expect sane sizes of things and don't have to explicitly error check. e.g. The kernel size will never be larger than the input size or larger than the stride.
 
+[This blog post](https://towardsdatascience.com/intuitively-understanding-convolutions-for-deep-learning-1f6f42faee1) has some pretty gifs which may help your understanding.
 
 ## 2. Max Pooling ##
 This should be very similar to convolution except instead of multiplying, you do a max. The same rules and expectations apply as in the conv layer.
