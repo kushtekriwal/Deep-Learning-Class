@@ -43,6 +43,9 @@ Specifically, you can make the following assumptions/simplifications:
 1. When computing output sizes, you should discard incomplete rows if the stride puts it over the edge. e.g. `(2, 3, 5, 5)` input, 3 kernels of size 2x2 and stride of 2 should result in an output of shape `(2, 3, 2, 2)`.
 1. You can expect sane sizes of things and don't have to explicitly error check. e.g. The kernel size will never be larger than the input size or larger than the stride.
 
+A hint on using Numba for this: You can use Numba's `prange` to parallelize certain loops, but you should use the standard python built in `range` for spots which need accumulation (`+=`). 
+You can probably use `prange` only in the `forward` pass, but will probably need nested `range` and `prange` in the `backward`.
+
 [This blog post](https://towardsdatascience.com/intuitively-understanding-convolutions-for-deep-learning-1f6f42faee1) has some pretty gifs which may help your understanding.
 
 ## 2. Max Pooling ##
