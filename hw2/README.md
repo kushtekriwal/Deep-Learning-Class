@@ -136,9 +136,9 @@ Complete the notebook to train a PyTorch model on CIFAR and ImageNet.
 
 ## 7. Short answer ##
 Answer these questions and save them in a file named `hw1/short_answer.pdf`.
-1. See if you can improve the MNistResNetwork architecture using more ResNetBlocks. What's the highest accuracy you achieve? What is the architecture (you can paste the output from print(network)).
+1. See if you can improve the MNistResNetwork architecture using more ResNetBlocks. What's the highest accuracy you achieve? What is the architecture (you can paste the output from `print(network))`.
 2. Do you get any improvement using a different non-linearity? Be sure to change it back to ReLU before you turn in your final code.
-3. Can you come up with an architecture which gets even higher accuracy? Again, include the output from print(network).
+3. Can you come up with an architecture which gets even higher accuracy? Again, include the output from `print(network)`.
 
 ## Turn it in ##
 
