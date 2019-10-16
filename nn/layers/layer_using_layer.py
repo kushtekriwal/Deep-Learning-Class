@@ -17,7 +17,10 @@ class LayerUsingLayer(Layer, ABC):
         raise NotImplementedError
 
     def set_parent(self, val):
-        self.parent.set_parent(val)
+        if isinstance(self._parent, DummyLayer):
+            self._parent.set_parent(val)
+        else:
+            self._parent = val
 
     def backward(self, previous_partial_gradients=None) -> None:
         if previous_partial_gradients is not None:
