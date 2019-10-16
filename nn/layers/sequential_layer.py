@@ -8,6 +8,7 @@ class SequentialLayer(LayerUsingLayer):
     def __init__(self, layers: Union[Tuple[Layer], List[Layer]], parent=None):
         super(SequentialLayer, self).__init__(parent)
         self.layers = layers
+        parent = self.parent
         for ll, layer in enumerate(self.layers):
             setattr(self, str(ll), layer)
             layer.parent = parent
@@ -30,6 +31,3 @@ class SequentialLayer(LayerUsingLayer):
         if isinstance(final_layer, LayerUsingLayer):
             return final_layer.final_layer
         return final_layer
-
-    def set_parent(self, val):
-        self.layers[0].set_parent(val)

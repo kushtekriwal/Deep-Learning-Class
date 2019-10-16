@@ -2,11 +2,14 @@ from abc import ABC
 
 import numpy as np
 
-from nn.layers import Layer
+from .layer import Layer
+from .dummy_layer import DummyLayer
 
 
 class LayerUsingLayer(Layer, ABC):
     def __init__(self, parent=None):
+        if parent is None:
+            parent = DummyLayer()
         super(LayerUsingLayer, self).__init__(parent)
 
     @property
@@ -14,7 +17,7 @@ class LayerUsingLayer(Layer, ABC):
         raise NotImplementedError
 
     def set_parent(self, val):
-        raise NotImplementedError
+        self.parent.set_parent(val)
 
     def backward(self, previous_partial_gradients=None) -> None:
         if previous_partial_gradients is not None:
@@ -50,7 +53,7 @@ class LayerUsingLayer(Layer, ABC):
 
         grad_dict = {}
         self._assign_parent_grads(self.final_layer, gradient, grad_dict)
-        # Ignore loss conv_layers because already computed
+        # Ignore loss layer because already computed
         order = order[1:]
         # Send gradients backwards
         for layer in order:

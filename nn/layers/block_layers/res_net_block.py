@@ -8,10 +8,6 @@ class ResNetBlock(LayerUsingLayer):
         self.add_layer = None
         self.relu2 = None
 
-    def set_parent(self, val):
-        # TODO
-        raise NotImplementedError
-
     @property
     def final_layer(self):
         # TODO

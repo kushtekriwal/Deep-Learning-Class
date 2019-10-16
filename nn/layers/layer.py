@@ -18,7 +18,7 @@ def normals_initializer(parameter: Parameter):
 class Layer(object):
     def __init__(self, parent: Optional[Union["Layer", Tuple["Layer", ...]]] = None):
         assert (
-                parent is None or isinstance(parent, Layer) or isinstance(parent, Tuple)
+            parent is None or isinstance(parent, Layer) or isinstance(parent, Tuple)
         ), "Parents must be a Layer, a list/tuple of Layers, or None"
 
         self._parent = self._fix_parent(parent)
@@ -31,12 +31,12 @@ class Layer(object):
     def _fix_parent(parent):
         if parent is not None:
             if isinstance(parent, Layer):
-                if hasattr(parent, 'final_layer'):
+                if hasattr(parent, "final_layer"):
                     parent = parent.final_layer
             else:
                 final_layers = []
                 for pp in parent:
-                    if hasattr(pp, 'final_layer'):
+                    if hasattr(pp, "final_layer"):
                         pp = pp.final_layer
                     final_layers.append(pp)
                 parent = tuple(final_layers)
@@ -99,7 +99,7 @@ class Layer(object):
                 params.append(val)
         return params
 
-    def share_parameters(self, other: 'Layer'):
+    def share_parameters(self, other: "Layer"):
         assert type(self) == type(other)
         self_vars = sorted(self.vars())
         other_vars = sorted(other.vars())
@@ -119,24 +119,28 @@ class Layer(object):
 
     def selfstr(self) -> str:
         """
-        Overload this function to print the specifics for this conv_layers.
+        Overload this function to print the specifics for this layer.
         See LinearLayer for an example.
         """
         return ""
 
     def _total_str(self, depth=0) -> List[str]:
+        from nn.layers.dummy_layer import DummyLayer
         total_str_arr = []
         for obj, val in self.vars():
             if isinstance(val, Layer):
-                total_str_arr.append(("(" + obj + "): " + val.name + val.selfstr(), depth))
-                #total_str_arr.append((val.selfstr(), depth + 1))
-                total_str_arr.extend(val._total_str(depth + 1))
+                if isinstance(val, DummyLayer):
+                    total_str_arr.extend(val._total_str(depth))
+                else:
+                    total_str_arr.append(("(" + obj + "): " + val.name + val.selfstr(), depth))
+                    # total_str_arr.append((val.selfstr(), depth + 1))
+                    total_str_arr.extend(val._total_str(depth + 1))
         return total_str_arr
 
     def __str__(self):
         total_str_arr = list()
         total_str_arr.append((self.name + self.selfstr(), 0))
-        #total_str_arr.append((self.selfstr(), 1))
+        # total_str_arr.append((self.selfstr(), 1))
         total_str_arr.extend(self._total_str(1))
         filtered_strs = []
         for val in total_str_arr:
