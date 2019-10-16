@@ -94,6 +94,12 @@ Firstly, notice that `ResNetBlock` is a subclass of `LayerUsingLayer`. This mean
 By doing this, we construct a computation graph which can be executed forward and which can be backpropagated through. This is actually something you've seen and used before.
 Both `SequentialLayer` and `Network` are also subclasses of `LayerUsingLayer`s. That's why you didn't have to write explicit `backward` functions for them.
 
+Have a look at [nn/layers/sequential_layer.py](nn/layers/sequential_layer.py) as a reference for another subclass of `LayerUsingLayer`.
+A `SequentialLayer` applies operations to data sequentially with each `Layer` using the previous `Layer`'s output as its input. 
+The nice thing about the sequential layer is we don't have to specify and call all the layers individually.
+But there is also some bookkeeping involved. `LayerUsingLayer`s must implement the `final_layer` property to work. We will also need to start using the `parent` argument that we have previously been ignoring.
+For `ResNetBlock` we will have to do similar things.
+
 <img src="../readme_assets/images/layer_using_layer.png">
 
 Each graph here is a DAG, and some of them have sub-graphs. Think of a `LayerUsingLayer` as a mini-graph within the overall graph. 
@@ -120,13 +126,7 @@ Finally, a ReLU is performed at the end. This is what we need to do in this laye
 
 So now let's actually implement the thing.
 
-Have a look at [nn/layers/sequential_layer.py](nn/layers/sequential_layer.py) as a reference for another subclass of `LayerUsingLayer`.
-A `SequentialLayer` applies operations to data sequentially with each `Layer` using the previous `Layer`'s output as its input. 
-The nice thing about the sequential layer is we don't have to specify and call all the layers individually.
-But there is also some bookkeeping involved. `LayerUsingLayer`s must implement the `final_layer` property and the `set_parent` function in order to work.
-For `ResNetBlock` we will have to do similar things.
 
-`Parent` nodes represent the input nodes to a `Layer`. `final_layer` nodes represent the output from a `Layer`.
 
 #### 5.2.1 \_\_init\_\_ ####
 In `__init__` we need to create the `Layer`s to do those operations listed above. You may find it useful to make the primary path using a `SequentialLayer`.
@@ -175,3 +175,8 @@ bash submit.sh
 This will create the file `submit.tar.gz` in your directory with all the code you need to submit. The command will check to see that your files have changed relative to the version stored in the `git` repository. If it hasn't changed, figure out why, maybe you need to download your ipynb from google?
 
 Submit `submit.tar.gz` in the file upload field for Homework 1 on Canvas.
+
+
+*On why we have this design quirk: We thought it would be nice to work directly with Numpy arrays rather than wrap them in some custom tensor object which could itself keep track of its parents and children and so on. This is how PyTorch works. 
+But it also means you must redefine even the most simple functions such as add, multiply, exp, which are already built into Numpy on the Tensor wrapper. This is why in PyTorch you must call `torch.exp` instead of `np.exp` to add a node in the graph.
+To give you the flexibility of using any Numpy functions without having to write all these wrapped functions ourselves, we opted for the alternative approach.
