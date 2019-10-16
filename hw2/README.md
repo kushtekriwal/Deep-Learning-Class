@@ -89,9 +89,26 @@ Now to actually make the ResNet block. You can think of this as a mini network w
 Through the magic of graphs and the backpropagation algorithm, we will only have to write a `forward` for this block and the `backward` can be figured out automatically.
 But to get the graph to be happy (AKA to specify the graph properly), we will  have to do some minor bookkeeping.
 
+
 Firstly, notice that `ResNetBlock` is a subclass of `LayerUsingLayer`. This means all the operations we will do on the data will be using `Layer`s rather than numpy/numba/python functions.
 By doing this, we construct a computation graph which can be executed forward and which can be backpropagated through. This is actually something you've seen and used before.
 Both `SequentialLayer` and `Network` are also subclasses of `LayerUsingLayer`s. That's why you didn't have to write explicit `backward` functions for them.
+
+<img src="../readme_assets/images/layer_using_layer.png">
+
+Each graph here is a DAG, and some of them have sub-graphs. Think of a `LayerUsingLayer` as a mini-graph within the overall graph. 
+These sub-graphs need to specify certain properties to be able to work well with the full graph.
+Specifically, they will need to deal with their input (parent) nodes and their output (final) nodes. 
+
+When we create a node, we will need to specify its `parent`. 
+All `Layer`s have an optional final `parent` argument which we will use for this.
+
+Within the logic of a `LayerUsingLayer` we will also need to specify its `final_layer`.
+
+But one nice property is that we can treat sub-graphs in the graph as a single unit. 
+This means rather than worry about setting the parent for each individual node in a subgraph, we only need to set the parent of the subgraph itself.
+So when we make a `SequentialLayer`, we don't have to set the parent of each sub-node (A,B,C in graph 2), we only have to set the parent of the entire `SequentialLayer` block.
+
 
 Now let's get into the `ResNetBlock`.
 <img src="../readme_assets/images/resnet_block.png">
@@ -109,9 +126,14 @@ The nice thing about the sequential layer is we don't have to specify and call a
 But there is also some bookkeeping involved. `LayerUsingLayer`s must implement the `final_layer` property and the `set_parent` function in order to work.
 For `ResNetBlock` we will have to do similar things.
 
+`Parent` nodes represent the input nodes to a `Layer`. `final_layer` nodes represent the output from a `Layer`.
+
 #### 5.2.1 \_\_init\_\_ ####
 In `__init__` we need to create the `Layer`s to do those operations listed above. You may find it useful to make the primary path using a `SequentialLayer`.
+
 Make sure to provide the parents of the layers to their constructors (all layers take a final optional `parent` argument in their constructors).
+
+**IMPORTANT** when you assign parents, use `self.parent` instead of `parent`. To see why, look at the `LayerUsingLayer` constructor. It creates a `DummyLayer` placeholder if the actual input is `None`.
 
 #### 5.2.2 forward ####
 Now we must actually do the `forward` pass of the data through the ResNet block. It should take in a single data array and return a new data array with the operations applied.
@@ -123,16 +145,6 @@ If it seems like you just specified the graph flow in the `__init__` function an
 In `SequentialLayer` we recursively search for the final layer from the `layers` list in case those layers too are `LayerUsingLayer`s.
 
 Here we simply need to return a reference to the last operation. In this case it should be the ReLU after the add.
-
-#### 5.2.4 set_parent ####
-`set_parent` lets us reassign the parent of the `LayerUsingLayer` subgraph. This is mostly useful because the `SequentialLayer` allows us to avoid specifying the parent during the `__init__` call of the sub-layers. You can see this at work in [hw1/main.py](hw1/main.py).
-Notice how none of the layers specify the parent argument. 
-
-For the `SequentialLayer`, `set_parent` is pretty straightforward. All we need to do is assign the parent to every point in the `SequentialLayer`'s sub-graph that used the parent.
-In this case, that is just the first element.
-
-Now we need to implement `set_parent` for `ResNetBlock`. Everywhere in the `__init__` function where the old parent (which may have been `None`) was used, we now have to substitute the new parent.
-
 
 ### 5.3 Testing it out ###
 In [hw2/main.py](hw2/main.py), change out the MNistNetwork for the MNistResNetwork. You should now get up to 99% accuracy on MNIST! Congratulations.
