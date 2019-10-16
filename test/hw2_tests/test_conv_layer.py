@@ -10,6 +10,8 @@ TOLERANCE = 1e-4
 
 
 def _test_conv_forward(input_shape, out_channels, kernel_size, stride):
+    np.random.seed(0)
+    torch.manual_seed(0)
     in_channels = input_shape[1]
     padding = (kernel_size - 1) // 2
     input = np.random.random(input_shape).astype(np.float32) * 20
@@ -54,6 +56,8 @@ def test_conv_forward_width_height_stride_kernel_size():
 
 
 def _test_conv_backward(input_shape, out_channels, kernel_size, stride):
+    np.random.seed(0)
+    torch.manual_seed(0)
     in_channels = input_shape[1]
     padding = (kernel_size - 1) // 2
     input = np.random.random(input_shape).astype(np.float32) * 20

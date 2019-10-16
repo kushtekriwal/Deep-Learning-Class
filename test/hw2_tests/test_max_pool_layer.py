@@ -9,6 +9,8 @@ TOLERANCE = 1e-4
 
 
 def _test_max_pool_forward(input_shape, kernel_size, stride):
+    np.random.seed(0)
+    torch.manual_seed(0)
     padding = (kernel_size - 1) // 2
     input = np.random.random(input_shape).astype(np.float32) * 20
     original_input = input.copy()
@@ -50,6 +52,8 @@ def test_max_pool_forward_width_height_stride_kernel_size():
 
 
 def _test_max_pool_backward(input_shape, kernel_size, stride):
+    np.random.seed(0)
+    torch.manual_seed(0)
     padding = (kernel_size - 1) // 2
     input = np.random.random(input_shape).astype(np.float32) * 20
     layer = MaxPoolLayer(kernel_size, stride)
