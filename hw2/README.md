@@ -30,7 +30,8 @@ pytest test/hw2_tests/test_conv_layer.py
 
 ## 1. Convolutions ##
 
-If you check out [nn/layers/conv_layer.py](nn/layers/conv_layer.py) you will see a pretty empty file. You should implement the convolution algorithm as described in class.
+If you check out [nn/layers/conv_layer.py](nn/layers/conv_layer.py) you will see a pretty empty file. You should implement the convolution algorithm as described in class. 
+We strongly recommend using Numba for this part of the homework. This is why we had you use Numba in the last homework.
 To make everyone's lives easier, we are only asking for you to cover a few cases of convolutions. If you want to do more, you're more than welcome, but as soon as you pass the provided tests, you should be good to go.
 Specifically, you can make the following assumptions/simplifications:
 1. You will "technically" be implementing the cross-correlation, but everyone calls it convolution.
@@ -88,23 +89,11 @@ Now to actually make the ResNet block. You can think of this as a mini network w
 Through the magic of graphs and the backpropagation algorithm, we will only have to write a `forward` for this block and the `backward` can be figured out automatically.
 But to get the graph to be happy (AKA to specify the graph properly), we will  have to do some minor bookkeeping.
 
-Firstly, notice that `ResNetBlock` is a `LayerUsingLayer`. This means all the operations we will do on the data will be using `Layer`s rather than numpy/numba/python functions.
+Firstly, notice that `ResNetBlock` is a subclass of `LayerUsingLayer`. This means all the operations we will do on the data will be using `Layer`s rather than numpy/numba/python functions.
 By doing this, we construct a computation graph which can be executed forward and which can be backpropagated through. This is actually something you've seen and used before.
-Both `SequentialLayer` and `Network`, and are all `LayerUsingLayer`s. That's why you didn't have to write explicit `backward` functions for them.
-
-Have a look at [nn/layers/sequential_layer.py](nn/layers/sequential_layer.py). A `SequentialLayer` applies operations to data sequentially with each `Layer` using the previous `Layer`'s output as its input. 
-The nice thing about the sequential layer is we don't have to specify and call all the layers individually.
-But there is also some bookkeeping involved. `LayerUsingLayer`s must implement the `final_layer` property and the `set_parent` function in order to work.
-
-`final_layer` is pretty straightforward. This is the very last thing done by a `LayerUsingLayer` (in the graph, it is the edge that exits the final node and doesn't go into anything).
-In `SequentialLayer` we recursively search for the final layer from the `layers` list in case those layers too are `LayerUsingLayer`s.
-
-`set_parent` lets us reassign the parent of the `LayerUsingLayer` subgraph. This is mostly useful because the `SequentialLayer` allows us to avoid specifying the parent during the `__init__` call of the sub-layers.
-Notice in `main.py` how none of the layers specify the parent argument. But now we have to "fix up" the parents by assigning the parent to any point in the `SequentialLayer`'s sub-graph that used the parent.
-In this case, that is just the first element.
+Both `SequentialLayer` and `Network` are also subclasses of `LayerUsingLayer`s. That's why you didn't have to write explicit `backward` functions for them.
 
 Now let's get into the `ResNetBlock`.
-
 <img src="../readme_assets/images/resnet_block.png">
 
 The `ResNetBlock` has two branches from the input that are eventually combined again. 
@@ -112,18 +101,38 @@ The primary path takes the data, applies a Convolution -> ReLU -> Convolution pi
 The residual path then adds the original input back to the output of the primary path.
 Finally, a ReLU is performed at the end. This is what we need to do in this layer (we are omitting Batch Norm for this assignment.)
 
+So now let's actually implement the thing.
+
+Have a look at [nn/layers/sequential_layer.py](nn/layers/sequential_layer.py) as a reference for another subclass of `LayerUsingLayer`.
+A `SequentialLayer` applies operations to data sequentially with each `Layer` using the previous `Layer`'s output as its input. 
+The nice thing about the sequential layer is we don't have to specify and call all the layers individually.
+But there is also some bookkeeping involved. `LayerUsingLayer`s must implement the `final_layer` property and the `set_parent` function in order to work.
+For `ResNetBlock` we will have to do similar things.
+
 #### 5.2.1 \_\_init\_\_ ####
 In `__init__` we need to create the `Layer`s to do those operations listed above. You may find it useful to make the primary path using a `SequentialLayer`.
-Make sure to provide the parents of the layers to their constructors.
+Make sure to provide the parents of the layers to their constructors (all layers take a final optional `parent` argument in their constructors).
 
-#### 5.2.2 set_parent ####
-Now we need to implement `set_parent`. Everywhere in the `__init__` function where the old parent (which may have been `None`) was used, we now have to substitute the new parent.
+#### 5.2.2 forward ####
+Now we must actually do the `forward` pass of the data through the ResNet block. It should take in a single data array and return a new data array with the operations applied.
+If it seems like you just specified the graph flow in the `__init__` function and now you have to do it again, that's sort of correct and a bit of a design quirk of our library.*
+
 
 #### 5.2.3 final_layer ####
+`final_layer` is pretty straightforward. This is the very last thing done by a `LayerUsingLayer` (in the graph, it is the edge that exits the final node and doesn't go into anything).
+In `SequentialLayer` we recursively search for the final layer from the `layers` list in case those layers too are `LayerUsingLayer`s.
+
 Here we simply need to return a reference to the last operation. In this case it should be the ReLU after the add.
 
-#### 5.2.4 forward ####
-Now we must actually do the `forward` pass of the data through the ResNet block. It should take in a single data array and return a new data array with the operations applied.
+#### 5.2.4 set_parent ####
+`set_parent` lets us reassign the parent of the `LayerUsingLayer` subgraph. This is mostly useful because the `SequentialLayer` allows us to avoid specifying the parent during the `__init__` call of the sub-layers. You can see this at work in [hw1/main.py](hw1/main.py).
+Notice how none of the layers specify the parent argument. 
+
+For the `SequentialLayer`, `set_parent` is pretty straightforward. All we need to do is assign the parent to every point in the `SequentialLayer`'s sub-graph that used the parent.
+In this case, that is just the first element.
+
+Now we need to implement `set_parent` for `ResNetBlock`. Everywhere in the `__init__` function where the old parent (which may have been `None`) was used, we now have to substitute the new parent.
+
 
 ### 5.3 Testing it out ###
 In [hw2/main.py](hw2/main.py), change out the MNistNetwork for the MNistResNetwork. You should now get up to 99% accuracy on MNIST! Congratulations.
