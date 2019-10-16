@@ -1,4 +1,5 @@
 from .layer import Layer
+from .dummy_layer import DummyLayer
 from .add_layer import AddLayer
 from .conv_layer import ConvLayer
 from .flatten_layer import FlattenLayer
@@ -10,15 +11,17 @@ from .prelu_layer import PReLULayer
 from .relu_layer import ReLULayer
 from .sequential_layer import SequentialLayer
 
-__all__ = ["Layer",
-           "LayerUsingLayer",
-           "LeakyReLULayer",
-           "LinearLayer",
-           "PReLULayer",
-           "ReLULayer",
-           "SequentialLayer",
-           "ConvLayer",
-           "MaxPoolLayer",
-           "FlattenLayer",
-           "AddLayer",
-           ]
+__all__ = [
+    "Layer",
+    "DummyLayer",
+    "LayerUsingLayer",
+    "AddLayer",
+    "ConvLayer",
+    "FlattenLayer",
+    "LeakyReLULayer",
+    "LinearLayer",
+    "MaxPoolLayer",
+    "PReLULayer",
+    "ReLULayer",
+    "SequentialLayer",
+]

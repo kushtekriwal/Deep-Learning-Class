@@ -126,6 +126,7 @@ class Layer(object):
 
     def _total_str(self, depth=0) -> List[str]:
         from nn.layers.dummy_layer import DummyLayer
+
         total_str_arr = []
         for obj, val in self.vars():
             if isinstance(val, Layer):
