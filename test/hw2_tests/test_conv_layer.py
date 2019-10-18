@@ -86,7 +86,7 @@ def test_conv_backward_batch_input_output():
         for input_channels in range(1, 5):
             for output_channels in range(1, 5):
                 input_shape = (batch_size, input_channels, width, height)
-                _test_conv_forward(input_shape, output_channels, kernel_size, stride)
+                _test_conv_backward(input_shape, output_channels, kernel_size, stride)
 
 
 def test_conv_backward_width_height_stride_kernel_size():
@@ -98,4 +98,4 @@ def test_conv_backward_width_height_stride_kernel_size():
             for stride in range(1, 3):
                 for kernel_size in range(stride, 6):
                     input_shape = (batch_size, input_channels, width, height)
-                    _test_conv_forward(input_shape, output_channels, kernel_size, stride)
+                    _test_conv_backward(input_shape, output_channels, kernel_size, stride)
