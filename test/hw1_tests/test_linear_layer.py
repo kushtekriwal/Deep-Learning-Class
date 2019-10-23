@@ -23,7 +23,7 @@ def _test_linear_forward(input_shape, out_channels):
 
     assert np.all(input == original_input)
     assert output.shape == torch_out.shape
-    assert utils.allclose(output, torch_out, atol=TOLERANCE)
+    utils.assert_close(output, torch_out, atol=TOLERANCE)
 
 
 def test_linear_forward():
@@ -49,7 +49,7 @@ def _test_linear_backward(input_shape, out_channels):
     torch_out = torch_layer(torch_input)
     torch_out.sum().backward()
 
-    assert utils.allclose(out_grad, torch_input.grad, atol=TOLERANCE)
+    utils.assert_close(out_grad, torch_input.grad, atol=TOLERANCE)
     utils.check_linear_grad_match(layer, torch_layer, tolerance=TOLERANCE)
 
 

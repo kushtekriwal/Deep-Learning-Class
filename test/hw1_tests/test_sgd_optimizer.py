@@ -41,20 +41,20 @@ def test_sgd_update():
 
     torch_optimizer.zero_grad()
     torch_out = torch_net(utils.from_numpy(data))
-    assert np.allclose(out, utils.to_numpy(torch_out.clone().detach()), atol=0.01)
+    utils.assert_close(out, utils.to_numpy(torch_out.clone().detach()), atol=0.01)
 
     torch_loss = torch_out.sum()
-    assert np.allclose(loss, torch_loss.item(), atol=0.01)
+    utils.assert_close(loss, torch_loss.item(), atol=0.01)
     torch_loss.backward()
 
-    assert np.allclose(net.weight.grad.T, utils.to_numpy(torch_net.layer.weight.grad))
-    assert np.allclose(net.bias.grad, utils.to_numpy(torch_net.layer.bias.grad))
+    utils.assert_close(net.weight.grad.T, utils.to_numpy(torch_net.layer.weight.grad))
+    utils.assert_close(net.bias.grad, utils.to_numpy(torch_net.layer.bias.grad))
 
     optimizer.step()
     torch_optimizer.step()
 
-    assert np.allclose(net.weight.data.T, utils.to_numpy(torch_net.layer.weight))
-    assert np.allclose(net.bias.data, utils.to_numpy(torch_net.layer.bias))
+    utils.assert_close(net.weight.data.T, utils.to_numpy(torch_net.layer.weight))
+    utils.assert_close(net.bias.data, utils.to_numpy(torch_net.layer.bias))
 
     assert not np.allclose(net.weight.data, initial_weight)
     assert not np.allclose(net.bias.data, initial_bias)

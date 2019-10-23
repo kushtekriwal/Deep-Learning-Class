@@ -14,7 +14,7 @@ def _test_backward_approx(layer, data_shape):
 
     output_gradient = layer.backward(previous_partial_gradient)
 
-    assert np.allclose((output1 - output2) / (2 * h), output_gradient)
+    utils.assert_close((output1 - output2) / (2 * h), output_gradient)
 
 
 def test_layers():
