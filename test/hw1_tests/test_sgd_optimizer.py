@@ -29,9 +29,7 @@ def test_sgd_update():
     initial_bias = net.bias.data.copy()
 
     torch_net = TorchNet()
-    with torch.no_grad():
-        torch_net.layer.weight[:] = utils.from_numpy(net.weight.data.T)
-        torch_net.layer.bias[:] = utils.from_numpy(net.bias.data)
+    utils.assign_linear_layer_weights(net, torch_net.layer)
     torch_optimizer = torch.optim.SGD(torch_net.parameters(), learning_rate)
 
     optimizer.zero_grad()
@@ -47,8 +45,7 @@ def test_sgd_update():
     utils.assert_close(loss, torch_loss.item(), atol=0.01)
     torch_loss.backward()
 
-    utils.assert_close(net.weight.grad.T, utils.to_numpy(torch_net.layer.weight.grad))
-    utils.assert_close(net.bias.grad, utils.to_numpy(torch_net.layer.bias.grad))
+    utils.check_linear_grad_match(net, torch_net.layer)
 
     optimizer.step()
     torch_optimizer.step()

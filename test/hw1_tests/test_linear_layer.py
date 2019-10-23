@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 from torch import nn
 
 from nn.layers.linear_layer import LinearLayer
@@ -43,11 +44,11 @@ def _test_linear_backward(input_shape, out_channels):
     utils.assign_linear_layer_weights(layer, torch_layer)
 
     output = layer.forward(input)
-    out_grad = layer.backward(np.ones_like(output))
+    out_grad = layer.backward(np.ones_like(output) * 2)
 
     torch_input = utils.from_numpy(input).requires_grad_(True)
     torch_out = torch_layer(torch_input)
-    torch_out.sum().backward()
+    (2 * torch_out).sum().backward()
 
     utils.assert_close(out_grad, torch_input.grad, atol=TOLERANCE)
     utils.check_linear_grad_match(layer, torch_layer, tolerance=TOLERANCE)
