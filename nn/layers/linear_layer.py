@@ -9,27 +9,31 @@ from .layer import Layer
 class LinearLayer(Layer):
     def __init__(self, input_size: int, output_size: int, parent=None):
         super(LinearLayer, self).__init__(parent)
+        self.data = None
         self.bias = Parameter(np.zeros((1, output_size), dtype=np.float32))
-        self.weight = None  # TODO create the weight parameter
+        self.weight = Parameter(np.random.normal(0, 0.1, (input_size, output_size)), dtype=np.float32) # TODO create the weight parameter 
         self.initialize()
 
     def forward(self, data: np.ndarray) -> np.ndarray:
         """
-        Linear conv_layers (fully connected) forward pass
+        Linear layer (fully connected) forward pass
         :param data: n X d array (batch x features)
         :return: n X c array (batch x channels)
         """
-        # TODO do the linear conv_layers
-        return None
+        # TODO do the linear layer
+        self.data = data
+        return np.dot(data, self.weight.data) + self.bias.data 
 
     def backward(self, previous_partial_gradient: np.ndarray) -> np.ndarray:
         """
         Does the backwards computation of gradients wrt weights and inputs
-        :param previous_partial_gradient: n X c partial gradients wrt future conv_layers
+        :param previous_partial_gradient: n X c partial gradients wrt future layer
         :return: gradients wrt inputs
         """
         # TODO do the backward step
-        return None
+        self.bias.grad = np.sum(previous_partial_gradient, axis=0)
+        self.weight.grad = np.dot(self.data.T, previous_partial_gradient)
+        return np.dot(previous_partial_gradient, self.weight.data.T)
 
     def selfstr(self):
         return str(self.weight.data.shape)

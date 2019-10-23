@@ -51,7 +51,7 @@ def train(train_data, train_labels, test_data, test_labels, optimizer_type="sgd"
     print("initial test accuracy %.3f" % accuracy, "loss %.3f" % loss)
     print("-" * 50)
 
-    for epoch in range(20):
+    for epoch in range(2):
         train_accuracy = 0
         train_loss = 0
         train_iters = 0

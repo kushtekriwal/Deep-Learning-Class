@@ -1,7 +1,8 @@
 import numpy as np
+import pandas as pd
 
 from .loss_layer import LossLayer
-
+from sklearn.preprocessing import OneHotEncoder
 
 class SoftmaxCrossEntropyLossLayer(LossLayer):
     def __init__(self, reduction="mean", parent=None):
@@ -10,20 +11,41 @@ class SoftmaxCrossEntropyLossLayer(LossLayer):
         :param reduction: mean reduction indicates the results should be summed and scaled by the size of the input (excluding the axis dimension).
             sum reduction means the results should be summed.
         """
-        self.reduction = reduction
         super(SoftmaxCrossEntropyLossLayer, self).__init__(parent)
+        self.reduction = reduction  
+        self.axis = None
+        self.target = None
 
     def forward(self, logits, targets, axis=-1) -> float:
         """
 
-        :param logits: N-Dimensional non-softmaxed outputs. All dimensions (after removing the "axis" dimension) should have the same length as targets.
-            Example: inputs might be (4 x 10), targets (4) and axis 1.
-        :param targets: (N-1)-Dimensional class id integers.
+        :param logits: ND non-softmaxed outputs. All dimensions (after removing the "axis" dimension) should have the same length as targets
+        :param targets: (N-1)D class id integers.
         :param axis: Dimension over which to run the Softmax and compare labels.
         :return: single float of the loss.
         """
         # TODO
-        return 0
+        #shape = list(logits.shape)
+        max_logits = np.amax(logits, axis=axis)
+        logits2 = logits - np.expand_dims(max_logits, axis=axis) 
+        log_softmax = logits2 - np.expand_dims(np.log(np.sum(np.exp(logits2), axis=axis)), axis=axis)
+
+
+        numcols = np.size(logits, axis)
+        numvals = targets.size
+        onehot = np.zeros((numvals, numcols), dtype=np.float32)
+        batchsize = np.arange(numvals)
+        onehot[batchsize, targets.flatten()] = 1.0
+        #cross_entropy = -1 * np.sum(log_softmax.reshape(-1, shape[axis]) * onehot) #use moveaxis to pass hard tests
+        log_softmax_move = np.moveaxis(log_softmax, axis, -1)
+        shape2 = list(log_softmax_move.shape)
+        cross_entropy = -1 * np.sum(log_softmax_move.reshape(-1, shape2[-1]) * onehot)
+        if self.reduction == "mean":
+            cross_entropy = cross_entropy / numvals
+        self.logits = logits
+        self.target = onehot
+        self.axis = axis
+        return cross_entropy
 
     def backward(self) -> np.ndarray:
         """
@@ -31,4 +53,13 @@ class SoftmaxCrossEntropyLossLayer(LossLayer):
         :return: gradients wrt the logits the same shape as the input logits
         """
         # TODO
-        return None
+        shape = list(self.logits.shape)
+        softmax = np.exp(self.logits) / np.expand_dims(np.sum(np.exp(self.logits), axis=self.axis), axis=self.axis)
+        softmax_move = np.moveaxis(softmax, self.axis, -1)
+        shape2 = list(softmax_move.shape)
+        #res = softmax.reshape(-1, shape[self.axis]) - self.target #use moveaxis to pass hard tests
+        res = softmax_move.reshape(-1, shape2[-1]) - self.target 
+        res = res.reshape(shape)
+        if self.reduction == "mean":
+            res = res / len(self.logits)
+        return res

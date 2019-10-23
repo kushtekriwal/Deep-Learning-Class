@@ -1,0 +1,5 @@
+{
+  "test/hw1_tests/test_sgd_optimizer.py::test_sgd_update": true,
+  "test/hw1_tests/test_softmax_cross_entropy_loss_layer.py::test_backward_hard": true,
+  "test/hw1_tests/test_softmax_cross_entropy_loss_layer.py::test_backward_harder": true
+}
