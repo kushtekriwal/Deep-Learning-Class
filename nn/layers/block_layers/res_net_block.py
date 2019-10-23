@@ -7,6 +7,9 @@ class ResNetBlock(LayerUsingLayer):
         self.conv_layers = SequentialLayer([ConvLayer(*conv_params), ReLULayer(), ConvLayer(*conv_params)], self.parent)
         self.add_layer = None
         self.relu2 = None
+        assert not any([parent is None for parent in self.conv_layers.parents])
+        assert not any([parent is None for parent in self.add_layer.parents])
+        assert not any([parent is None for parent in self.relu2.parents])
 
     @property
     def final_layer(self):
