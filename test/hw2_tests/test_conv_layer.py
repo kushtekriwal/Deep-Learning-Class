@@ -67,11 +67,11 @@ def _test_conv_backward(input_shape, out_channels, kernel_size, stride):
     utils.assign_conv_layer_weights(layer, torch_layer)
 
     output = layer.forward(input)
-    out_grad = layer.backward(np.ones_like(output))
+    out_grad = layer.backward(2 * np.ones_like(output) / output.size)
 
     torch_input = utils.from_numpy(input).requires_grad_(True)
     torch_out = torch_layer(torch_input)
-    torch_out.sum().backward()
+    (2 * torch_out.mean()).backward()
 
     utils.assert_close(out_grad, torch_input.grad, atol=TOLERANCE)
     utils.check_conv_grad_match(layer, torch_layer)
