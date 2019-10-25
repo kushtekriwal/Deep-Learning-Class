@@ -55,16 +55,14 @@ class ConvLayer(Layer):
         # TODO
         # data is N x C x H x W
         # kernel is COld x CNew x K x K
-        #prange, commit
         (batchsize, inchannels, height, width) = list(data.shape)
         (inchannels, outchannels, k, k) = list(kernel.shape)
         outheight = int(((height - k + 2*padding) / stride) + 1)
-        outwidth = int((width - k + 2*padding) / stride + 1)
+        outwidth = int(((width - k + 2*padding) / stride) + 1)
 
         for i in range(batchsize):
             a_prev_pad = A_prev_pad[i]
             da_prev_pad = dA_prev_pad[i]
-            #print(da_prev_pad.shape)
             for c in range(outchannels):
                 for h in range(outheight):
                     for w in range(outwidth):
@@ -72,13 +70,18 @@ class ConvLayer(Layer):
                         vert_end = vert_start + k
                         horiz_start = w * stride
                         horiz_end = horiz_start + k
-                        #print(h)
-                        #print(w)
                         a_slice = a_prev_pad[:, vert_start:vert_end, horiz_start:horiz_end]
                         da_prev_pad[:, vert_start:vert_end, horiz_start:horiz_end] += kernel[:, c, :, :] * previous_grad[i, c, h, w]
+                        #print(da_prev_pad)
                         kernel_grad[:,c,:,:] += a_slice * previous_grad[i, c, h, w] 
                         bias_grad[c] += previous_grad[i, c, h, w]
-            dA_prev[i,:,:,:] = da_prev_pad[:, padding:-padding, padding:-padding]                    
+            #rint(dA_prev[i,:,:,:].shape)
+            #print(da_prev_pad[:, :, :].shape)
+            #print(padding)
+            if padding == 0:
+                dA_prev[i,:,:,:] = da_prev_pad[:, :, :]
+            else:
+                dA_prev[i,:,:,:] = da_prev_pad[:, padding:-padding, padding:-padding]                    
         return dA_prev
 
     def backward(self, previous_partial_gradient):
