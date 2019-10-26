@@ -65,7 +65,7 @@ def _test_max_pool_backward(input_shape, kernel_size, stride):
 
     torch_input = utils.from_numpy(input).requires_grad_(True)
     torch_out = torch_layer(torch_input)
-    (2 * torch_out.sum()).backward()
+    (2 * torch_out.mean()).backward()
 
     torch_out_grad = utils.to_numpy(torch_input.grad)
     utils.assert_close(out_grad, torch_out_grad, atol=TOLERANCE)
