@@ -15,6 +15,8 @@ class SoftmaxCrossEntropyLossLayer(LossLayer):
         self.reduction = reduction  
         self.axis = None
         self.target = None
+        self.exp = None
+        self.size = None
 
     def forward(self, logits, targets, axis=-1) -> float:
         """
@@ -28,15 +30,17 @@ class SoftmaxCrossEntropyLossLayer(LossLayer):
         #shape = list(logits.shape)
         max_logits = np.amax(logits, axis=axis)
         logits2 = logits - np.expand_dims(max_logits, axis=axis) 
+        self.exp = np.exp(logits2)
         log_softmax = logits2 - np.expand_dims(np.log(np.sum(np.exp(logits2), axis=axis)), axis=axis)
 
 
         numcols = np.size(logits, axis)
         numvals = targets.size
+        self.size = numvals
         onehot = np.zeros((numvals, numcols), dtype=np.float32)
         batchsize = np.arange(numvals)
         onehot[batchsize, targets.flatten()] = 1.0
-        #cross_entropy = -1 * np.sum(log_softmax.reshape(-1, shape[axis]) * onehot) #use moveaxis to pass hard tests
+
         log_softmax_move = np.moveaxis(log_softmax, axis, -1)
         shape2 = list(log_softmax_move.shape)
         cross_entropy = -1 * np.sum(log_softmax_move.reshape(-1, shape2[-1]) * onehot)
@@ -54,12 +58,12 @@ class SoftmaxCrossEntropyLossLayer(LossLayer):
         """
         # TODO
         shape = list(self.logits.shape)
-        softmax = np.exp(self.logits) / np.expand_dims(np.sum(np.exp(self.logits), axis=self.axis), axis=self.axis)
+        softmax = self.exp / np.expand_dims(np.sum(self.exp, axis=self.axis), axis=self.axis)
         softmax_move = np.moveaxis(softmax, self.axis, -1)
         shape2 = list(softmax_move.shape)
-        #res = softmax.reshape(-1, shape[self.axis]) - self.target #use moveaxis to pass hard tests
         res = softmax_move.reshape(-1, shape2[-1]) - self.target 
-        res = res.reshape(shape)
+        res = res.reshape(shape2)
+        res = np.moveaxis(res, -1, self.axis)
         if self.reduction == "mean":
-            res = res / len(self.logits)
+            res = res / self.size
         return res

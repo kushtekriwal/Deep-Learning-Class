@@ -17,9 +17,9 @@ class ReLULayer(Layer):
 
     def backward(self, previous_partial_gradient):
         # TODO
-        relu_b = previous_partial_gradient.copy()
-        relu_b[self.data <= 0] = 0
-        relu_b[self.data > 0] = 1
+        #data_shape = list(self.data.shape)
+        #data = self.data.reshape(data_shape[0], -1)
+        relu_b = np.multiply(previous_partial_gradient, (self.data>0))
         return relu_b  
 
 
@@ -32,33 +32,38 @@ class ReLUNumbaLayer(Layer):
     @njit(parallel=True, cache=True)
     def forward_numba(data):
         # TODO Helper function for computing ReLU
-        shape = data.shape
-        relu_f = data.flatten()
-        for idx, i in enumerate(relu_f):
-            relu_f[idx] = np.maximum(i, 0)
-        relu_f.reshape(shape)
-        return relu_f
+        data_length = list(data.shape)
+        data_length = data_length[0]
+        for i in range(data_length):
+            if (data[i] <= 0):
+                data[i] = 0
+        return data
 
     def forward(self, data):
-        # TODO
+        # TODO 
         self.data = data
-        output = self.forward_numba(self.data)
+        input_shape = data.shape
+        flattened_inp = data.flatten()
+        flattened_oup = self.forward_numba(flattened_inp)
+        output = flattened_oup.reshape(input_shape)
         return output        
 
     @staticmethod
     @njit(parallel=True, cache=True)
     def backward_numba(data, grad):
         # TODO Helper function for computing ReLU gradients
-        shape = grad.shape
-        out_grad = grad.flatten()
-        for idx, i in enumerate(out_grad):
-            if data[idx] <= 0:
-                out_grad[idx] = 0
-            else:
-                out_grad[idx] = 1
-        return out_grad.reshape(shape)
+        grad_length = list(grad.shape)
+        grad_length = grad_length[0]
+        for i in range(grad_length):
+            if (data[i] <= 0):
+                grad[i] = 0
+        return grad
 
     def backward(self, previous_partial_gradient):
         # TODO
-        output = self.backward_numba(self.data, previous_partial_gradient)
-        return output
+        prev_shape = previous_partial_gradient.shape
+        flat_data = self.data.flatten()
+        flat_prev = previous_partial_gradient.flatten()
+        flat_gradient = self.backward_numba(flat_data, flat_prev)
+        gradient = flat_gradient.reshape(prev_shape)
+        return gradient

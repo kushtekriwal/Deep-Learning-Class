@@ -16,7 +16,6 @@ class ConvLayer(Layer):
         self.padding = (kernel_size - 1) // 2
         self.stride = stride
         self.data = None
-        #self.fprop = None
         self.initialize()
 
     @staticmethod
@@ -46,7 +45,6 @@ class ConvLayer(Layer):
         data_pad = np.pad(data, ((0,0), (0,0), (self.padding, self.padding), (self.padding, self.padding)), 'constant', constant_values=(0,0))
         output = ConvLayer.forward_numba(data_pad, self.weight.data, self.bias.data, self.stride, self.padding)
         self.data = data
-        #self.fprop = output
         return output
 
     @staticmethod
@@ -72,12 +70,8 @@ class ConvLayer(Layer):
                         horiz_end = horiz_start + k
                         a_slice = a_prev_pad[:, vert_start:vert_end, horiz_start:horiz_end]
                         da_prev_pad[:, vert_start:vert_end, horiz_start:horiz_end] += kernel[:, c, :, :] * previous_grad[i, c, h, w]
-                        #print(da_prev_pad)
                         kernel_grad[:,c,:,:] += a_slice * previous_grad[i, c, h, w] 
                         bias_grad[c] += previous_grad[i, c, h, w]
-            #rint(dA_prev[i,:,:,:].shape)
-            #print(da_prev_pad[:, :, :].shape)
-            #print(padding)
             if padding == 0:
                 dA_prev[i,:,:,:] = da_prev_pad[:, :, :]
             else:

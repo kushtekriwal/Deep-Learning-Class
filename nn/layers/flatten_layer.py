@@ -7,8 +7,10 @@ class FlattenLayer(Layer):
 
     def forward(self, data):
         # TODO reshape the data here and return it (this can be in place).
-        return None
+        shape = list(data.shape)
+        return data.reshape(shape[0], -1)
 
     def backward(self, previous_partial_gradient):
         # TODO
-        return None
+        shape = list(previous_partial_gradient.shape)
+        return previous_partial_gradient.reshape(shape[0], -1)
