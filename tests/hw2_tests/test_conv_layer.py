@@ -4,7 +4,7 @@ import torch
 from torch import nn
 
 from nn.layers.conv_layer import ConvLayer
-from test import utils
+from tests import utils
 
 TOLERANCE = 1e-4
 
@@ -28,7 +28,7 @@ def _test_conv_forward(input_shape, out_channels, kernel_size, stride):
 
     assert np.all(input == original_input)
     assert output.shape == torch_out.shape
-    assert utils.allclose(output, torch_out, atol=TOLERANCE)
+    utils.assert_close(output, torch_out, atol=TOLERANCE)
 
 
 def test_conv_forward_batch_input_output():
@@ -67,13 +67,13 @@ def _test_conv_backward(input_shape, out_channels, kernel_size, stride):
     utils.assign_conv_layer_weights(layer, torch_layer)
 
     output = layer.forward(input)
-    out_grad = layer.backward(np.ones_like(output))
+    out_grad = layer.backward(2 * np.ones_like(output) / output.size)
 
     torch_input = utils.from_numpy(input).requires_grad_(True)
     torch_out = torch_layer(torch_input)
-    torch_out.sum().backward()
+    (2 * torch_out.mean()).backward()
 
-    assert utils.allclose(out_grad, torch_input.grad, atol=TOLERANCE)
+    utils.assert_close(out_grad, torch_input.grad, atol=TOLERANCE)
     utils.check_conv_grad_match(layer, torch_layer)
 
 
